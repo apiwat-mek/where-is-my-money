@@ -31,7 +31,7 @@ import { toast } from 'sonner';
 import SlipUploader from './SlipUploader';
 import TransactionList from './TransactionList';
 import Reports from './Reports';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import TransactionForm from './TransactionForm';
 import CategoryManager from './CategoryManager';
 import { Settings } from 'lucide-react';
@@ -128,6 +128,9 @@ export default function Dashboard({ user, profile }: DashboardProps) {
             <DialogContent className="bg-[#1a1d26] border-[#2d313d] text-white">
               <DialogHeader>
                 <DialogTitle>Manage Categories</DialogTitle>
+                <DialogDescription className="text-gray-400">
+                  Add, edit, and remove your custom income and expense categories.
+                </DialogDescription>
               </DialogHeader>
               <CategoryManager userId={user.uid} categories={categories} />
             </DialogContent>
@@ -192,6 +195,9 @@ export default function Dashboard({ user, profile }: DashboardProps) {
                   <Plus className="w-5 h-5 text-emerald-500" />
                   Add Transaction
                 </DialogTitle>
+                <DialogDescription className="text-gray-400">
+                  Enter transaction details manually and save them to this month.
+                </DialogDescription>
               </DialogHeader>
               <TransactionForm 
                 userId={user.uid} 
@@ -213,6 +219,9 @@ export default function Dashboard({ user, profile }: DashboardProps) {
                   <Upload className="w-5 h-5 text-blue-500" />
                   Process Bank Slip
                 </DialogTitle>
+                <DialogDescription className="text-gray-400">
+                  Upload a slip image to extract amount, type, category, and date automatically.
+                </DialogDescription>
               </DialogHeader>
               <SlipUploader 
                 userId={user.uid} 
