@@ -8,6 +8,75 @@ interface SlipData {
   date: string;
 }
 
+interface AcceptedCategories {
+  income: string[];
+  expense: string[];
+}
+
+function normalizeCategoryName(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+function resolveCategory(
+  extractedCategory: string,
+  type: "income" | "expense",
+  acceptedCategories: AcceptedCategories,
+): {
+  category: string;
+  requiresCategorySelection: boolean;
+  originalCategory?: string;
+} {
+  const pool = acceptedCategories[type] ?? [];
+  const normalizedExtracted = normalizeCategoryName(extractedCategory);
+
+  const matched = pool.find(
+    (category) => normalizeCategoryName(category) === normalizedExtracted,
+  );
+
+  if (matched) {
+    return {
+      category: matched,
+      requiresCategorySelection: false,
+    };
+  }
+
+  const fallback = pool.find(
+    (category) => normalizeCategoryName(category) === "other",
+  );
+
+  return {
+    category: fallback ?? "Other",
+    requiresCategorySelection: true,
+    originalCategory: extractedCategory,
+  };
+}
+
+let cachedClient: GoogleGenAI | null = null;
+
+function getClient(apiKey: string): GoogleGenAI {
+  if (!cachedClient) {
+    cachedClient = new GoogleGenAI({ apiKey });
+  }
+
+  return cachedClient;
+}
+
+function extractJsonPayload(text: string): string | null {
+  const trimmed = text.trim();
+
+  if (trimmed.startsWith("{")) {
+    return trimmed;
+  }
+
+  const fencedMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fencedMatch?.[1]) {
+    return fencedMatch[1].trim();
+  }
+
+  const objectMatch = trimmed.match(/\{[\s\S]*\}/);
+  return objectMatch?.[0] ?? null;
+}
+
 export default async function handler(req: any, res: any) {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method not allowed" });
@@ -20,29 +89,37 @@ export default async function handler(req: any, res: any) {
     return;
   }
 
-  const { base64Image, mimeType } = req.body ?? {};
-  if (!base64Image || !mimeType) {
-    res.status(400).json({ error: "base64Image and mimeType are required" });
+  const { base64Image, mimeType, acceptedCategories } = req.body ?? {};
+  if (!base64Image || !mimeType || !acceptedCategories) {
+    res
+      .status(400)
+      .json({
+        error: "base64Image, mimeType, and acceptedCategories are required",
+      });
+    return;
+  }
+
+  if (
+    !Array.isArray(acceptedCategories.income) ||
+    !Array.isArray(acceptedCategories.expense)
+  ) {
+    res
+      .status(400)
+      .json({
+        error: "acceptedCategories must include income and expense arrays",
+      });
     return;
   }
 
   try {
-    const ai = new GoogleGenAI({ apiKey });
+    const ai = getClient(apiKey);
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-2.5-flash",
       contents: [
         {
           parts: [
             {
-              text: `Analyze this bank slip image and extract the following information in JSON format:
-              - amount: The total amount (number)
-              - type: Either 'income' or 'expense' (based on whether it's a transfer in or out)
-              - category: A suitable category (e.g., Food, Transport, Salary, Shopping, Utilities, etc.)
-              - description: A brief description of the transaction
-              - date: The transaction date in ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ)
-
-              If you cannot find a specific field, provide a best guess or leave it empty/null.
-              Return ONLY the JSON object.`,
+              text: "Extract amount, type (income|expense), category, description, and date (ISO 8601) from this bank slip. Return JSON only.",
             },
             {
               inlineData: {
@@ -75,10 +152,42 @@ export default async function handler(req: any, res: any) {
       return;
     }
 
-    const parsed = JSON.parse(text) as SlipData;
-    res.status(200).json(parsed);
+    const jsonText = extractJsonPayload(text);
+    if (!jsonText) {
+      res.status(422).json({ error: "Model returned unparseable output" });
+      return;
+    }
+
+    const parsed = JSON.parse(jsonText) as Partial<SlipData>;
+    if (
+      typeof parsed.amount !== "number" ||
+      (parsed.type !== "income" && parsed.type !== "expense") ||
+      typeof parsed.category !== "string" ||
+      typeof parsed.date !== "string"
+    ) {
+      res
+        .status(422)
+        .json({ error: "Model output was missing required fields" });
+      return;
+    }
+
+    const categoryResolution = resolveCategory(
+      parsed.category,
+      parsed.type,
+      acceptedCategories as AcceptedCategories,
+    );
+
+    res.status(200).json({
+      ...parsed,
+      category: categoryResolution.category,
+      requiresCategorySelection: categoryResolution.requiresCategorySelection,
+      originalCategory: categoryResolution.originalCategory,
+    });
   } catch (error) {
     console.error("Error processing slip with Gemini:", error);
-    res.status(500).json({ error: "Failed to process slip" });
+
+    const message =
+      error instanceof Error ? error.message : "Failed to process slip";
+    res.status(500).json({ error: message });
   }
 }
