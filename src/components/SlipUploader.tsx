@@ -14,6 +14,59 @@ interface SlipUploaderProps {
   onSuccess: () => void;
 }
 
+const MAX_IMAGE_SIDE = 1400;
+const COMPRESSED_MIME_TYPE = 'image/jpeg';
+const COMPRESSED_QUALITY = 0.75;
+
+function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
+
+function loadImage(dataUrl: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = (err) => reject(err);
+    image.src = dataUrl;
+  });
+}
+
+async function optimizeImageForAnalysis(file: File): Promise<{ previewDataUrl: string; base64: string; mimeType: string }> {
+  const previewDataUrl = await readFileAsDataUrl(file);
+  const image = await loadImage(previewDataUrl);
+
+  const scale = Math.min(1, MAX_IMAGE_SIDE / Math.max(image.width, image.height));
+  const width = Math.max(1, Math.round(image.width * scale));
+  const height = Math.max(1, Math.round(image.height * scale));
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+
+  const context = canvas.getContext('2d');
+  if (!context) {
+    return {
+      previewDataUrl,
+      base64: previewDataUrl.split(',')[1],
+      mimeType: file.type,
+    };
+  }
+
+  context.drawImage(image, 0, 0, width, height);
+  const optimizedDataUrl = canvas.toDataURL(COMPRESSED_MIME_TYPE, COMPRESSED_QUALITY);
+
+  return {
+    previewDataUrl,
+    base64: optimizedDataUrl.split(',')[1],
+    mimeType: COMPRESSED_MIME_TYPE,
+  };
+}
+
 export default function SlipUploader({ userId, onSuccess }: SlipUploaderProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
@@ -23,28 +76,25 @@ export default function SlipUploader({ userId, onSuccess }: SlipUploaderProps) {
     const file = acceptedFiles[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const base64 = (reader.result as string).split(',')[1];
-      setPreview(reader.result as string);
-      setIsProcessing(true);
-      
-      try {
-        const data = await processSlip(base64, file.type);
-        if (data) {
-          setExtractedData(data);
-          toast.success("Slip processed successfully!");
-        } else {
-          toast.error("Could not extract data from slip.");
-        }
-      } catch (error) {
-        console.error(error);
-        toast.error("Error processing slip.");
-      } finally {
-        setIsProcessing(false);
+    setIsProcessing(true);
+
+    try {
+      const optimized = await optimizeImageForAnalysis(file);
+      setPreview(optimized.previewDataUrl);
+
+      const data = await processSlip(optimized.base64, optimized.mimeType);
+      if (data) {
+        setExtractedData(data);
+        toast.success("Slip processed successfully!");
+      } else {
+        toast.error("Could not extract data from slip.");
       }
-    };
-    reader.readAsDataURL(file);
+    } catch (error) {
+      console.error(error);
+      toast.error("Error processing slip.");
+    } finally {
+      setIsProcessing(false);
+    }
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({

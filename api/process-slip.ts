@@ -8,6 +8,16 @@ interface SlipData {
   date: string;
 }
 
+let cachedClient: GoogleGenAI | null = null;
+
+function getClient(apiKey: string): GoogleGenAI {
+  if (!cachedClient) {
+    cachedClient = new GoogleGenAI({ apiKey });
+  }
+
+  return cachedClient;
+}
+
 export default async function handler(req: any, res: any) {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method not allowed" });
@@ -27,22 +37,14 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    const ai = new GoogleGenAI({ apiKey });
+    const ai = getClient(apiKey);
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: [
         {
           parts: [
             {
-              text: `Analyze this bank slip image and extract the following information in JSON format:
-              - amount: The total amount (number)
-              - type: Either 'income' or 'expense' (based on whether it's a transfer in or out)
-              - category: A suitable category (e.g., Food, Transport, Salary, Shopping, Utilities, etc.)
-              - description: A brief description of the transaction
-              - date: The transaction date in ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ)
-
-              If you cannot find a specific field, provide a best guess or leave it empty/null.
-              Return ONLY the JSON object.`,
+              text: "Extract amount, type (income|expense), category, description, and date (ISO 8601) from this bank slip. Return JSON only.",
             },
             {
               inlineData: {
