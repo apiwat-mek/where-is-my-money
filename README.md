@@ -19,6 +19,7 @@ Prerequisites: Node.js 20+
    - Build command: npm run build
    - Output directory: dist
 3. Add these Environment Variables in Vercel Project Settings.
+   - Paste raw values only (no surrounding quotes like "value" or 'value').
 
 Public values (exposed to browser, must start with VITE\_):
 

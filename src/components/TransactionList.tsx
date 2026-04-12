@@ -23,7 +23,7 @@ import { db } from '../lib/firebase';
 import { deleteDoc, doc } from 'firebase/firestore';
 import { toast } from 'sonner';
 import { Button } from './ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import TransactionForm from './TransactionForm';
 
 interface TransactionListProps {
@@ -150,6 +150,9 @@ export default function TransactionList({ transactions, userId, categories }: Tr
               <Edit2 className="w-5 h-5 text-emerald-500" />
               Edit Transaction
             </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Update the selected transaction details and save your changes.
+            </DialogDescription>
           </DialogHeader>
           {editingTransaction && (
             <TransactionForm 
@@ -170,6 +173,9 @@ export default function TransactionList({ transactions, userId, categories }: Tr
               <Trash2 className="w-5 h-5" />
               Confirm Deletion
             </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              This action permanently removes the selected transaction.
+            </DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <p className="text-sm text-gray-400 leading-relaxed">Are you sure you want to delete this transaction? This action cannot be undone.</p>
