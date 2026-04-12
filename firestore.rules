@@ -1,0 +1,107 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {userId}
+    // Fields:
+    //   - uid: string (required)
+    //   - email: string (required)
+    //   - displayName: string
+    //   - photoURL: string
+    //   - createdAt: timestamp
+    //
+    // Collection: transactions
+    // Document ID: {transactionId}
+    // Fields:
+    //   - userId: string (required)
+    //   - type: string (income/expense)
+    //   - amount: number (required)
+    //   - category: string (required)
+    //   - description: string
+    //   - date: timestamp (required)
+    //   - slipUrl: string
+    //   - createdAt: timestamp
+    //
+    // Collection: categories
+    // Document ID: {categoryId}
+    // Fields:
+    //   - userId: string (required)
+    //   - name: string (required)
+    //   - type: string (income/expense)
+    //   - icon: string
+    //   - color: string
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
+
+    function isNewDocOwner() {
+      return isAuthenticated() && request.auth.uid == request.resource.data.userId;
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email']) &&
+             data.uid is string &&
+             data.email is string &&
+             data.email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidTransaction(data) {
+      return data.keys().hasAll(['userId', 'type', 'amount', 'category', 'date']) &&
+             data.userId is string &&
+             data.type in ['income', 'expense'] &&
+             data.amount is number && data.amount >= 0 &&
+             data.category is string && data.category.size() > 0 && data.category.size() < 100 &&
+             data.date is timestamp;
+    }
+
+    function isValidCategory(data) {
+      return data.keys().hasAll(['userId', 'name', 'type']) &&
+             data.userId is string &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 50 &&
+             data.type in ['income', 'expense'];
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if isOwner(userId) && isValidUser(request.resource.data);
+      allow delete: if false;
+    }
+
+    match /transactions/{transactionId} {
+      allow read: if isAuthenticated() && (resource == null || resource.data.userId == request.auth.uid);
+      allow create: if isNewDocOwner() && isValidTransaction(request.resource.data);
+      allow update: if isDocOwner() && isNewDocOwner() && isValidTransaction(request.resource.data);
+      allow delete: if isDocOwner();
+    }
+
+    match /categories/{categoryId} {
+      allow read: if isAuthenticated() && (resource == null || resource.data.userId == request.auth.uid);
+      allow create: if isNewDocOwner() && isValidCategory(request.resource.data);
+      allow update: if isDocOwner() && isNewDocOwner() && isValidCategory(request.resource.data);
+      allow delete: if isDocOwner();
+    }
+  }
+}

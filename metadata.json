@@ -1,0 +1,5 @@
+{
+  "name": "SlipSaver - Bank Slip Expense Tracker",
+  "description": "Automatically record and categorize income and expenses from bank slips using AI. Features financial reports, custom categories, and secure login.",
+  "requestFramePermissions": []
+}
