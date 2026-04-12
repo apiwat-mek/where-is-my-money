@@ -8,6 +8,49 @@ interface SlipData {
   date: string;
 }
 
+interface AcceptedCategories {
+  income: string[];
+  expense: string[];
+}
+
+function normalizeCategoryName(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+function resolveCategory(
+  extractedCategory: string,
+  type: "income" | "expense",
+  acceptedCategories: AcceptedCategories,
+): {
+  category: string;
+  requiresCategorySelection: boolean;
+  originalCategory?: string;
+} {
+  const pool = acceptedCategories[type] ?? [];
+  const normalizedExtracted = normalizeCategoryName(extractedCategory);
+
+  const matched = pool.find(
+    (category) => normalizeCategoryName(category) === normalizedExtracted,
+  );
+
+  if (matched) {
+    return {
+      category: matched,
+      requiresCategorySelection: false,
+    };
+  }
+
+  const fallback = pool.find(
+    (category) => normalizeCategoryName(category) === "other",
+  );
+
+  return {
+    category: fallback ?? "Other",
+    requiresCategorySelection: true,
+    originalCategory: extractedCategory,
+  };
+}
+
 let cachedClient: GoogleGenAI | null = null;
 
 function getClient(apiKey: string): GoogleGenAI {
@@ -46,9 +89,25 @@ export default async function handler(req: any, res: any) {
     return;
   }
 
-  const { base64Image, mimeType } = req.body ?? {};
-  if (!base64Image || !mimeType) {
-    res.status(400).json({ error: "base64Image and mimeType are required" });
+  const { base64Image, mimeType, acceptedCategories } = req.body ?? {};
+  if (!base64Image || !mimeType || !acceptedCategories) {
+    res
+      .status(400)
+      .json({
+        error: "base64Image, mimeType, and acceptedCategories are required",
+      });
+    return;
+  }
+
+  if (
+    !Array.isArray(acceptedCategories.income) ||
+    !Array.isArray(acceptedCategories.expense)
+  ) {
+    res
+      .status(400)
+      .json({
+        error: "acceptedCategories must include income and expense arrays",
+      });
     return;
   }
 
@@ -112,7 +171,18 @@ export default async function handler(req: any, res: any) {
       return;
     }
 
-    res.status(200).json(parsed);
+    const categoryResolution = resolveCategory(
+      parsed.category,
+      parsed.type,
+      acceptedCategories as AcceptedCategories,
+    );
+
+    res.status(200).json({
+      ...parsed,
+      category: categoryResolution.category,
+      requiresCategorySelection: categoryResolution.requiresCategorySelection,
+      originalCategory: categoryResolution.originalCategory,
+    });
   } catch (error) {
     console.error("Error processing slip with Gemini:", error);
 

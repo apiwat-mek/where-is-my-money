@@ -4,11 +4,19 @@ export interface SlipData {
   category: string;
   description: string;
   date: string; // ISO string
+  requiresCategorySelection?: boolean;
+  originalCategory?: string;
+}
+
+export interface AcceptedCategories {
+  income: string[];
+  expense: string[];
 }
 
 export async function processSlip(
   base64Image: string,
   mimeType: string,
+  acceptedCategories: AcceptedCategories,
 ): Promise<SlipData | null> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 25000);
@@ -23,6 +31,7 @@ export async function processSlip(
       body: JSON.stringify({
         base64Image,
         mimeType,
+        acceptedCategories,
       }),
     });
 
