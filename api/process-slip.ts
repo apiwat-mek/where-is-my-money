@@ -18,6 +18,22 @@ function getClient(apiKey: string): GoogleGenAI {
   return cachedClient;
 }
 
+function extractJsonPayload(text: string): string | null {
+  const trimmed = text.trim();
+
+  if (trimmed.startsWith("{")) {
+    return trimmed;
+  }
+
+  const fencedMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fencedMatch?.[1]) {
+    return fencedMatch[1].trim();
+  }
+
+  const objectMatch = trimmed.match(/\{[\s\S]*\}/);
+  return objectMatch?.[0] ?? null;
+}
+
 export default async function handler(req: any, res: any) {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method not allowed" });
@@ -39,7 +55,7 @@ export default async function handler(req: any, res: any) {
   try {
     const ai = getClient(apiKey);
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-2.5-flash",
       contents: [
         {
           parts: [
@@ -77,10 +93,31 @@ export default async function handler(req: any, res: any) {
       return;
     }
 
-    const parsed = JSON.parse(text) as SlipData;
+    const jsonText = extractJsonPayload(text);
+    if (!jsonText) {
+      res.status(422).json({ error: "Model returned unparseable output" });
+      return;
+    }
+
+    const parsed = JSON.parse(jsonText) as Partial<SlipData>;
+    if (
+      typeof parsed.amount !== "number" ||
+      (parsed.type !== "income" && parsed.type !== "expense") ||
+      typeof parsed.category !== "string" ||
+      typeof parsed.date !== "string"
+    ) {
+      res
+        .status(422)
+        .json({ error: "Model output was missing required fields" });
+      return;
+    }
+
     res.status(200).json(parsed);
   } catch (error) {
     console.error("Error processing slip with Gemini:", error);
-    res.status(500).json({ error: "Failed to process slip" });
+
+    const message =
+      error instanceof Error ? error.message : "Failed to process slip";
+    res.status(500).json({ error: message });
   }
 }

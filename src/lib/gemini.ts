@@ -26,12 +26,14 @@ export async function processSlip(
       }),
     });
 
+        const errorBody = await response.json().catch(() => null);
+        console.error("Slip extraction failed:", response.status, errorBody);
     if (!response.ok) {
       return null;
     }
 
     return (await response.json()) as SlipData;
-  } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
     console.error("Error processing slip:", error);
     return null;
   } finally {
