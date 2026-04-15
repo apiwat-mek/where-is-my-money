@@ -144,7 +144,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
             <Wallet className="text-emerald-500 w-5 h-5 md:w-6 md:h-6" />
             SlipSaver
           </h1>
-          <p className="text-gray-400 text-[10px] md:text-sm">
+          <p className="text-gray-300 text-[10px] md:text-sm">
             Welcome back,{" "}
             {profile?.displayName?.split(" ")[0] || user.email?.split("@")[0]}
           </p>
@@ -195,7 +195,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
       </header>
 
       {/* Month Selector & Balance */}
-      <div className="relative overflow-hidden bg-[#1a1d26] border border-[#2d313d] rounded-3xl p-6 md:p-8 flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8 shadow-2xl">
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#1a1d26] to-[#171a22] border border-[#2d313d] rounded-3xl p-6 md:p-8 flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8 shadow-2xl">
         <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 blur-[100px] -mr-32 -mt-32" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/5 blur-[100px] -ml-32 -mb-32" />
 
@@ -209,7 +209,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
             <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
           </Button>
           <div className="text-center min-w-[140px] md:min-w-[180px]">
-            <p className="text-[9px] md:text-[10px] text-gray-500 uppercase tracking-[0.2em] font-bold mb-1">
+            <p className="text-[9px] md:text-[10px] text-gray-400 uppercase tracking-[0.2em] font-bold mb-1">
               {monthName}
             </p>
             <div className="flex items-baseline justify-center gap-1">
@@ -235,7 +235,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
           <Dialog open={isManualOpen} onOpenChange={setIsManualOpen}>
             <DialogTrigger
               render={
-                <Button className="flex-1 md:flex-none h-11 md:h-12 px-4 md:px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs md:text-sm font-semibold shadow-lg shadow-emerald-500/20 transition-all hover:scale-105 active:scale-95 gap-2">
+                <Button className="flex-1 md:flex-none h-11 md:h-12 px-4 md:px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs md:text-sm font-semibold shadow-lg shadow-emerald-500/30 transition-all hover:scale-105 active:scale-95 gap-2">
                   <Plus className="w-4 h-4 md:w-5 md:h-5" /> Add Manual
                 </Button>
               }
@@ -301,15 +301,15 @@ export default function Dashboard({ user, profile }: DashboardProps) {
             className="grid grid-cols-1 lg:grid-cols-3 gap-8"
           >
             {/* Summary Cards */}
-            <div className="lg:col-span-1 space-y-6">
-              <Card className="bg-[#1a1d26]/50 backdrop-blur-sm border-[#2d313d] text-white overflow-hidden group">
-                <div className="h-1 bg-emerald-500/50 group-hover:bg-emerald-500 transition-colors" />
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-[10px] uppercase tracking-widest font-bold text-gray-500 flex items-center gap-2">
-                    <TrendingUp className="w-3 h-3 text-emerald-500" /> Monthly
-                    Income
-                  </CardTitle>
-                </CardHeader>
+             <div className="lg:col-span-1 space-y-6">
+               <Card className="bg-[#1a1d26]/70 backdrop-blur-sm border-[#2d313d] text-white overflow-hidden group shadow-lg shadow-emerald-950/20">
+                 <div className="h-1 bg-emerald-500/50 group-hover:bg-emerald-500 transition-colors" />
+                 <CardHeader className="pb-2">
+                   <CardTitle className="text-[10px] uppercase tracking-widest font-bold text-gray-400 flex items-center gap-2">
+                     <TrendingUp className="w-3 h-3 text-emerald-500" /> Monthly
+                     Income
+                   </CardTitle>
+                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl md:text-3xl font-black text-emerald-500 tracking-tighter">
                     ฿ {totalIncome.toLocaleString()}
@@ -317,14 +317,14 @@ export default function Dashboard({ user, profile }: DashboardProps) {
                 </CardContent>
               </Card>
 
-              <Card className="bg-[#1a1d26]/50 backdrop-blur-sm border-[#2d313d] text-white overflow-hidden group">
-                <div className="h-1 bg-rose-500/50 group-hover:bg-rose-500 transition-colors" />
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-[10px] uppercase tracking-widest font-bold text-gray-500 flex items-center gap-2">
-                    <TrendingDown className="w-3 h-3 text-rose-500" /> Monthly
-                    Expense
-                  </CardTitle>
-                </CardHeader>
+               <Card className="bg-[#1a1d26]/70 backdrop-blur-sm border-[#2d313d] text-white overflow-hidden group shadow-lg shadow-rose-950/20">
+                 <div className="h-1 bg-rose-500/50 group-hover:bg-rose-500 transition-colors" />
+                 <CardHeader className="pb-2">
+                   <CardTitle className="text-[10px] uppercase tracking-widest font-bold text-gray-400 flex items-center gap-2">
+                     <TrendingDown className="w-3 h-3 text-rose-500" /> Monthly
+                     Expense
+                   </CardTitle>
+                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl md:text-3xl font-black text-rose-500 tracking-tighter">
                     ฿ {totalExpense.toLocaleString()}
