@@ -18,7 +18,16 @@ interface ReportsProps {
   compact?: boolean;
 }
 
-const COLORS = ['#3b82f6', '#8b5cf6', '#f59e0b', '#06b6d4', '#ec4899', '#6366f1', '#14b8a6'];
+const COLORS = [
+  '#FF6B6B',
+  '#4D96FF',
+  '#FFD93D',
+  '#6BCB77',
+  '#C77DFF',
+  '#FF922B',
+  '#2EC4B6',
+  '#F06595',
+];
 
 export default function Reports({ transactions, compact = false }: ReportsProps) {
   // Expense by category
@@ -62,7 +71,12 @@ export default function Reports({ transactions, compact = false }: ReportsProps)
                   dataKey="value"
                 >
                   {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                      stroke="#111827"
+                      strokeWidth={2}
+                    />
                   ))}
                 </Pie>
                 <Tooltip 
@@ -76,7 +90,7 @@ export default function Reports({ transactions, compact = false }: ReportsProps)
             {pieData.slice(0, 3).map((item, index) => (
               <div key={item.name} className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
+                  <div className="w-3 h-3 rounded-full ring-1 ring-white/30" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
                   <span className="text-gray-400">{item.name}</span>
                 </div>
                 <span className="font-bold">฿ {item.value.toLocaleString()}</span>
@@ -109,7 +123,12 @@ export default function Reports({ transactions, compact = false }: ReportsProps)
                   dataKey="value"
                 >
                   {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                      stroke="#111827"
+                      strokeWidth={2}
+                    />
                   ))}
                 </Pie>
                 <Tooltip 
@@ -137,8 +156,8 @@ export default function Reports({ transactions, compact = false }: ReportsProps)
                   itemStyle={{ color: '#fff' }}
                 />
                 <Legend iconSize={10} wrapperStyle={{ fontSize: '12px' }} />
-                <Bar dataKey="income" fill="#10b981" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="expense" fill="#f43f5e" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="income" fill="#10b981" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
