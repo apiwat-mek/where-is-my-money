@@ -44,20 +44,20 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0f1117] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-100 dark:bg-[#0f1117] flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0f1117] text-white font-sans">
+    <div className="min-h-screen bg-slate-100 dark:bg-[#0f1117] text-slate-900 dark:text-white font-sans">
       {user ? (
         <Dashboard user={user} profile={profile} />
       ) : (
         <Auth />
       )}
-      <Toaster position="top-right" theme="dark" />
+      <Toaster position="top-right" />
     </div>
   );
 }

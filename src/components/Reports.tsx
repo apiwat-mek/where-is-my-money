@@ -1,4 +1,5 @@
 import { Transaction } from '../types';
+import { useEffect, useState } from 'react';
 import { 
   PieChart, 
   Pie, 
@@ -12,6 +13,7 @@ import {
   Legend 
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { useTheme } from 'next-themes';
 
 interface ReportsProps {
   transactions: Transaction[];
@@ -30,6 +32,24 @@ const COLORS = [
 ];
 
 export default function Reports({ transactions, compact = false }: ReportsProps) {
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = mounted ? resolvedTheme === 'dark' : true;
+  const tooltipStyle = {
+    backgroundColor: isDark ? '#1a1d26' : '#ffffff',
+    border: isDark ? '1px solid #2d313d' : '1px solid #e2e8f0',
+    borderRadius: '8px',
+    fontSize: '12px',
+  };
+  const tooltipItemStyle = { color: isDark ? '#ffffff' : '#111827' };
+  const chartStroke = isDark ? '#111827' : '#cbd5e1';
+  const axisStroke = isDark ? '#6b7280' : '#475569';
+
   // Expense by category
   const expenseByCategory = transactions
     .filter(t => t.type === 'expense')
@@ -53,9 +73,9 @@ export default function Reports({ transactions, compact = false }: ReportsProps)
 
   if (compact) {
     return (
-      <Card className="bg-[#1a1d26] border-[#2d313d] text-white">
+      <Card className="bg-white border-slate-200 text-slate-900 dark:bg-[#1a1d26] dark:border-[#2d313d] dark:text-white">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-gray-400">Expense Distribution</CardTitle>
+          <CardTitle className="text-sm font-medium text-slate-500 dark:text-gray-400">Expense Distribution</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-[200px] w-full">
@@ -74,14 +94,14 @@ export default function Reports({ transactions, compact = false }: ReportsProps)
                     <Cell
                       key={`cell-${index}`}
                       fill={COLORS[index % COLORS.length]}
-                      stroke="#111827"
+                      stroke={chartStroke}
                       strokeWidth={2}
                     />
                   ))}
                 </Pie>
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#1a1d26', border: '1px solid #2d313d', borderRadius: '8px' }}
-                  itemStyle={{ color: '#fff' }}
+                  contentStyle={tooltipStyle}
+                  itemStyle={tooltipItemStyle}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -91,7 +111,7 @@ export default function Reports({ transactions, compact = false }: ReportsProps)
               <div key={item.name} className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full ring-1 ring-white/30" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-                  <span className="text-gray-400">{item.name}</span>
+                  <span className="text-slate-500 dark:text-gray-400">{item.name}</span>
                 </div>
                 <span className="font-bold">฿ {item.value.toLocaleString()}</span>
               </div>
@@ -104,7 +124,7 @@ export default function Reports({ transactions, compact = false }: ReportsProps)
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-      <Card className="bg-[#1a1d26] border-[#2d313d] text-white">
+      <Card className="bg-white border-slate-200 text-slate-900 dark:bg-[#1a1d26] dark:border-[#2d313d] dark:text-white">
         <CardHeader className="p-4 md:p-6">
           <CardTitle className="text-base md:text-lg">Expense by Category</CardTitle>
         </CardHeader>
@@ -126,14 +146,14 @@ export default function Reports({ transactions, compact = false }: ReportsProps)
                     <Cell
                       key={`cell-${index}`}
                       fill={COLORS[index % COLORS.length]}
-                      stroke="#111827"
+                      stroke={chartStroke}
                       strokeWidth={2}
                     />
                   ))}
                 </Pie>
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#1a1d26', border: '1px solid #2d313d', borderRadius: '8px', fontSize: '12px' }}
-                  itemStyle={{ color: '#fff' }}
+                  contentStyle={tooltipStyle}
+                  itemStyle={tooltipItemStyle}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -141,7 +161,7 @@ export default function Reports({ transactions, compact = false }: ReportsProps)
         </CardContent>
       </Card>
 
-      <Card className="bg-[#1a1d26] border-[#2d313d] text-white">
+      <Card className="bg-white border-slate-200 text-slate-900 dark:bg-[#1a1d26] dark:border-[#2d313d] dark:text-white">
         <CardHeader className="p-4 md:p-6">
           <CardTitle className="text-base md:text-lg">Income vs Expense</CardTitle>
         </CardHeader>
@@ -149,11 +169,11 @@ export default function Reports({ transactions, compact = false }: ReportsProps)
           <div className="h-[250px] md:h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={barData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <XAxis dataKey="name" stroke="#6b7280" fontSize={12} />
-                <YAxis stroke="#6b7280" fontSize={12} />
+                <XAxis dataKey="name" stroke={axisStroke} fontSize={12} />
+                <YAxis stroke={axisStroke} fontSize={12} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#1a1d26', border: '1px solid #2d313d', borderRadius: '8px', fontSize: '12px' }}
-                  itemStyle={{ color: '#fff' }}
+                  contentStyle={tooltipStyle}
+                  itemStyle={tooltipItemStyle}
                 />
                 <Legend iconSize={10} wrapperStyle={{ fontSize: '12px' }} />
                 <Bar dataKey="expense" fill="#f43f5e" radius={[4, 4, 0, 0]} />

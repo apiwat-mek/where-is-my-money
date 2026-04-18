@@ -76,15 +76,15 @@ export default function TransactionForm({ userId, categories, onSuccess, initial
     <form onSubmit={handleSubmit} className="space-y-6 py-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <Label className="text-[10px] uppercase tracking-widest font-bold text-gray-500">Type</Label>
-          <div className="grid grid-cols-2 gap-2 p-1 bg-[#0f1117] rounded-xl border border-[#2d313d]">
+          <Label className="text-[10px] uppercase tracking-widest font-bold text-slate-500 dark:text-gray-500">Type</Label>
+          <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-[#0f1117] rounded-xl border border-slate-200 dark:border-[#2d313d]">
             <button
               type="button"
               onClick={() => setType('expense')}
               className={`py-2 text-xs font-bold rounded-lg transition-all ${
                 type === 'expense' 
                   ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20' 
-                  : 'text-gray-500 hover:text-gray-300'
+                  : 'text-slate-500 hover:text-slate-700 dark:text-gray-500 dark:hover:text-gray-300'
               }`}
             >
               Expense
@@ -95,7 +95,7 @@ export default function TransactionForm({ userId, categories, onSuccess, initial
               className={`py-2 text-xs font-bold rounded-lg transition-all ${
                 type === 'income' 
                   ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' 
-                  : 'text-gray-500 hover:text-gray-300'
+                  : 'text-slate-500 hover:text-slate-700 dark:text-gray-500 dark:hover:text-gray-300'
               }`}
             >
               Income
@@ -104,25 +104,25 @@ export default function TransactionForm({ userId, categories, onSuccess, initial
         </div>
 
         <div className="space-y-2">
-          <Label className="text-[10px] uppercase tracking-widest font-bold text-gray-500">Amount (฿)</Label>
-          <Input 
-            type="number" 
-            step="0.01"
-            value={amount} 
-            onChange={(e) => setAmount(e.target.value)}
-            className="bg-[#0f1117] border-[#2d313d] h-11 text-lg font-bold"
-            placeholder="0.00"
-            required
-          />
+          <Label className="text-[10px] uppercase tracking-widest font-bold text-slate-500 dark:text-gray-500">Amount (฿)</Label>
+            <Input 
+              type="number" 
+              step="0.01"
+              value={amount} 
+              onChange={(e) => setAmount(e.target.value)}
+              className="bg-white dark:bg-[#0f1117] border-slate-200 dark:border-[#2d313d] h-11 text-lg font-bold"
+              placeholder="0.00"
+              required
+            />
         </div>
 
         <div className="space-y-2">
-          <Label className="text-[10px] uppercase tracking-widest font-bold text-gray-500">Category</Label>
+          <Label className="text-[10px] uppercase tracking-widest font-bold text-slate-500 dark:text-gray-500">Category</Label>
           <Select value={category} onValueChange={setCategory}>
-            <SelectTrigger className="bg-[#0f1117] border-[#2d313d] h-11">
+            <SelectTrigger className="bg-white dark:bg-[#0f1117] border-slate-200 dark:border-[#2d313d] h-11">
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
-            <SelectContent className="bg-[#1a1d26] border-[#2d313d] text-white">
+            <SelectContent className="bg-white border-slate-200 text-slate-900 dark:bg-[#1a1d26] dark:border-[#2d313d] dark:text-white">
               {defaultCategories.map(c => (
                 <SelectItem key={c} value={c}>{c}</SelectItem>
               ))}
@@ -134,24 +134,24 @@ export default function TransactionForm({ userId, categories, onSuccess, initial
         </div>
 
         <div className="space-y-2">
-          <Label className="text-[10px] uppercase tracking-widest font-bold text-gray-500">Date</Label>
-          <Input 
-            type="date" 
-            value={date} 
-            onChange={(e) => setDate(e.target.value)}
-            className="bg-[#0f1117] border-[#2d313d] h-11 [color-scheme:dark]"
-            required
-          />
+          <Label className="text-[10px] uppercase tracking-widest font-bold text-slate-500 dark:text-gray-500">Date</Label>
+            <Input 
+              type="date" 
+              value={date} 
+              onChange={(e) => setDate(e.target.value)}
+              className="bg-white dark:bg-[#0f1117] border-slate-200 dark:border-[#2d313d] h-11 [color-scheme:light] dark:[color-scheme:dark]"
+              required
+            />
         </div>
 
         <div className="space-y-2 md:col-span-2">
-          <Label className="text-[10px] uppercase tracking-widest font-bold text-gray-500">Description (Optional)</Label>
-          <Input 
-            value={description} 
-            onChange={(e) => setDescription(e.target.value)}
-            className="bg-[#0f1117] border-[#2d313d] h-11"
-            placeholder="What was this for?"
-          />
+          <Label className="text-[10px] uppercase tracking-widest font-bold text-slate-500 dark:text-gray-500">Description (Optional)</Label>
+            <Input 
+              value={description} 
+              onChange={(e) => setDescription(e.target.value)}
+              className="bg-white dark:bg-[#0f1117] border-slate-200 dark:border-[#2d313d] h-11"
+              placeholder="What was this for?"
+            />
         </div>
       </div>
 

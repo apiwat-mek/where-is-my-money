@@ -3,8 +3,6 @@ import { useState } from 'react';
 import { Transaction, Category } from '../types';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { 
-  TrendingUp, 
-  TrendingDown, 
   ShoppingBag, 
   Utensils, 
   Car, 
@@ -69,9 +67,9 @@ export default function TransactionList({ transactions, userId, categories }: Tr
 
   if (transactions.length === 0) {
     return (
-      <Card className="bg-[#1a1d26]/50 backdrop-blur-sm border-[#2d313d] text-white">
-        <CardContent className="flex flex-col items-center justify-center py-16 text-gray-500 space-y-4">
-          <div className="w-16 h-16 bg-[#2d313d] rounded-full flex items-center justify-center">
+      <Card className="bg-white/80 backdrop-blur-sm border-slate-200 dark:bg-[#1a1d26]/50 dark:border-[#2d313d] text-slate-900 dark:text-white">
+        <CardContent className="flex flex-col items-center justify-center py-16 text-slate-500 dark:text-gray-500 space-y-4">
+          <div className="w-16 h-16 bg-slate-200 dark:bg-[#2d313d] rounded-full flex items-center justify-center">
             <DollarSign className="w-8 h-8 opacity-20" />
           </div>
           <p className="text-sm">No transactions found for this month.</p>
@@ -82,31 +80,31 @@ export default function TransactionList({ transactions, userId, categories }: Tr
 
   return (
     <>
-      <Card className="bg-[#1a1d26]/50 backdrop-blur-sm border-[#2d313d] text-white overflow-hidden">
-        <CardHeader className="border-b border-[#2d313d] bg-[#1a1d26]/30">
+      <Card className="bg-white/80 backdrop-blur-sm border-slate-200 dark:bg-[#1a1d26]/50 dark:border-[#2d313d] text-slate-900 dark:text-white overflow-hidden">
+        <CardHeader className="border-b border-slate-200 dark:border-[#2d313d] bg-slate-50/80 dark:bg-[#1a1d26]/30">
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
             <FileText className="w-5 h-5 text-emerald-500" />
             Recent Transactions
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="divide-y divide-[#2d313d]">
+          <div className="divide-y divide-slate-200 dark:divide-[#2d313d]">
             {transactions.map((tx, index) => (
               <motion.div
                 key={tx.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="flex items-center justify-between p-4 hover:bg-[#2d313d]/50 transition-colors group relative overflow-hidden"
+                className="flex items-center justify-between p-4 hover:bg-slate-100 dark:hover:bg-[#2d313d]/50 transition-colors group relative overflow-hidden"
               >
                 <div className={`absolute left-0 top-0 bottom-0 w-1 ${tx.type === 'income' ? 'bg-emerald-500' : 'bg-rose-500'} opacity-50`} />
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-[#0f1117] flex items-center justify-center border border-[#2d313d] shadow-inner">
+                  <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-[#0f1117] flex items-center justify-center border border-slate-200 dark:border-[#2d313d] shadow-inner">
                     {getCategoryIcon(tx.category, tx.type)}
                   </div>
                   <div>
                     <p className="font-medium text-sm">{tx.category}</p>
-                    <p className="text-[11px] text-gray-500 font-mono">
+                    <p className="text-[11px] text-slate-500 dark:text-gray-500 font-mono">
                       {tx.date.toDate().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} • {tx.description || 'No description'}
                     </p>
                   </div>
@@ -122,7 +120,7 @@ export default function TransactionList({ transactions, userId, categories }: Tr
                       variant="ghost" 
                       size="icon-xs" 
                       onClick={() => setEditingTransaction(tx)}
-                      className="text-gray-400 hover:text-white hover:bg-[#3d414d] w-8 h-8 md:w-9 md:h-9"
+                      className="text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-[#3d414d] w-8 h-8 md:w-9 md:h-9"
                     >
                       <Edit2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
                     </Button>
@@ -130,7 +128,7 @@ export default function TransactionList({ transactions, userId, categories }: Tr
                       variant="ghost" 
                       size="icon-xs" 
                       onClick={() => setDeletingTransactionId(tx.id)}
-                      className="text-gray-400 hover:text-rose-400 hover:bg-rose-400/10 w-8 h-8 md:w-9 md:h-9"
+                      className="text-slate-500 dark:text-gray-400 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-rose-400/10 w-8 h-8 md:w-9 md:h-9"
                     >
                       <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
                     </Button>
@@ -144,13 +142,13 @@ export default function TransactionList({ transactions, userId, categories }: Tr
 
       {/* Edit Dialog */}
       <Dialog open={!!editingTransaction} onOpenChange={(open) => !open && setEditingTransaction(null)}>
-        <DialogContent className="bg-[#1a1d26] border-[#2d313d] text-white shadow-2xl">
+        <DialogContent className="bg-white border-slate-200 text-slate-900 dark:bg-[#1a1d26] dark:border-[#2d313d] dark:text-white shadow-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Edit2 className="w-5 h-5 text-emerald-500" />
               Edit Transaction
             </DialogTitle>
-            <DialogDescription className="text-gray-400">
+            <DialogDescription className="text-slate-500 dark:text-gray-400">
               Update the selected transaction details and save your changes.
             </DialogDescription>
           </DialogHeader>
@@ -167,21 +165,21 @@ export default function TransactionList({ transactions, userId, categories }: Tr
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={!!deletingTransactionId} onOpenChange={(open) => !open && setDeletingTransactionId(null)}>
-        <DialogContent className="bg-[#1a1d26] border-[#2d313d] text-white shadow-2xl max-w-xs">
+        <DialogContent className="bg-white border-slate-200 text-slate-900 dark:bg-[#1a1d26] dark:border-[#2d313d] dark:text-white shadow-2xl max-w-xs">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-rose-500">
               <Trash2 className="w-5 h-5" />
               Confirm Deletion
             </DialogTitle>
-            <DialogDescription className="text-gray-400">
+            <DialogDescription className="text-slate-500 dark:text-gray-400">
               This action permanently removes the selected transaction.
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <p className="text-sm text-gray-400 leading-relaxed">Are you sure you want to delete this transaction? This action cannot be undone.</p>
+            <p className="text-sm text-slate-600 dark:text-gray-400 leading-relaxed">Are you sure you want to delete this transaction? This action cannot be undone.</p>
           </div>
           <div className="flex gap-3">
-            <Button variant="outline" className="flex-1 border-[#2d313d] hover:bg-[#2d313d]" onClick={() => setDeletingTransactionId(null)}>
+            <Button variant="outline" className="flex-1 border-slate-300 dark:border-[#2d313d] hover:bg-slate-100 dark:hover:bg-[#2d313d]" onClick={() => setDeletingTransactionId(null)}>
               Cancel
             </Button>
             <Button 

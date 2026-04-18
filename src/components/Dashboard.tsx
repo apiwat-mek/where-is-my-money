@@ -7,8 +7,6 @@ import {
   where,
   onSnapshot,
   orderBy,
-  addDoc,
-  serverTimestamp,
   Timestamp,
 } from "firebase/firestore";
 import { Transaction, UserProfile, Category } from "../types";
@@ -21,7 +19,6 @@ import {
   TrendingUp,
   TrendingDown,
   Wallet,
-  Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
   PieChart,
@@ -42,6 +39,7 @@ import {
 import TransactionForm from "./TransactionForm";
 import CategoryManager from "./CategoryManager";
 import { Settings } from "lucide-react";
+import ThemeToggle from "./ThemeToggle";
 
 interface DashboardProps {
   user: User;
@@ -144,7 +142,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
             <Wallet className="text-emerald-500 w-5 h-5 md:w-6 md:h-6" />
             SlipSaver
           </h1>
-          <p className="text-gray-300 text-[10px] md:text-sm">
+          <p className="text-slate-600 dark:text-gray-300 text-[10px] md:text-sm">
             Welcome back,{" "}
             {profile?.displayName?.split(" ")[0] || user.email?.split("@")[0]}
           </p>
@@ -156,16 +154,16 @@ export default function Dashboard({ user, profile }: DashboardProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-gray-400 hover:text-white"
+                  className="text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"
                 >
                   <Settings />
                 </Button>
               }
             />
-            <DialogContent className="bg-[#1a1d26] border-[#2d313d] text-white">
+            <DialogContent className="bg-white border-slate-200 text-slate-900 dark:bg-[#1a1d26] dark:border-[#2d313d] dark:text-white">
               <DialogHeader>
                 <DialogTitle>Manage Categories</DialogTitle>
-                <DialogDescription className="text-gray-400">
+                <DialogDescription className="text-slate-500 dark:text-gray-400">
                   Add, edit, and remove your custom income and expense
                   categories.
                 </DialogDescription>
@@ -173,13 +171,14 @@ export default function Dashboard({ user, profile }: DashboardProps) {
               <CategoryManager userId={user.uid} categories={categories} />
             </DialogContent>
           </Dialog>
+          <ThemeToggle />
           <Button
             variant="ghost"
             size="icon"
             onClick={() =>
               setView(view === "dashboard" ? "reports" : "dashboard")
             }
-            className="text-gray-400 hover:text-white"
+            className="text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"
           >
             {view === "dashboard" ? <PieChart /> : <TrendingUp />}
           </Button>
@@ -187,7 +186,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
             variant="ghost"
             size="icon"
             onClick={handleLogout}
-            className="text-gray-400 hover:text-red-400"
+            className="text-slate-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
           >
             <LogOut />
           </Button>
@@ -195,7 +194,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
       </header>
 
       {/* Month Selector & Balance */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#1a1d26] to-[#171a22] border border-[#2d313d] rounded-3xl p-6 md:p-8 flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8 shadow-2xl">
+      <div className="relative overflow-hidden bg-gradient-to-br from-white to-slate-100 border border-slate-200 dark:from-[#1a1d26] dark:to-[#171a22] dark:border-[#2d313d] rounded-3xl p-6 md:p-8 flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8 shadow-2xl">
         <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 blur-[100px] -mr-32 -mt-32" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/5 blur-[100px] -ml-32 -mb-32" />
 
@@ -204,28 +203,28 @@ export default function Dashboard({ user, profile }: DashboardProps) {
             variant="outline"
             size="icon"
             onClick={() => changeMonth(-1)}
-            className="rounded-full border-[#2d313d] hover:bg-[#2d313d] w-8 h-8 md:w-10 md:h-10"
+            className="rounded-full border-slate-300 text-slate-700 hover:text-slate-900 dark:border-[#2d313d] dark:text-white hover:bg-slate-100 dark:hover:bg-[#2d313d] w-8 h-8 md:w-10 md:h-10"
           >
             <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
           </Button>
           <div className="text-center min-w-[140px] md:min-w-[180px]">
-            <p className="text-[9px] md:text-[10px] text-gray-400 uppercase tracking-[0.2em] font-bold mb-1">
+            <p className="text-[9px] md:text-[10px] text-slate-500 dark:text-gray-400 uppercase tracking-[0.2em] font-bold mb-1">
               {monthName}
             </p>
             <div className="flex items-baseline justify-center gap-1">
-              <span className="text-xs md:text-sm font-medium text-gray-400">
+              <span className="text-xs md:text-sm font-medium text-slate-500 dark:text-gray-400">
                 ฿
               </span>
-              <p className="text-3xl md:text-4xl font-black tracking-tighter bg-gradient-to-br from-white to-gray-400 bg-clip-text text-transparent">
-                {balance.toLocaleString()}
-              </p>
+               <p className="text-3xl md:text-4xl font-black tracking-tighter bg-gradient-to-br from-slate-900 to-slate-500 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
+                 {balance.toLocaleString()}
+               </p>
             </div>
           </div>
           <Button
             variant="outline"
             size="icon"
             onClick={() => changeMonth(1)}
-            className="rounded-full border-[#2d313d] hover:bg-[#2d313d] w-8 h-8 md:w-10 md:h-10"
+            className="rounded-full border-slate-300 text-slate-700 hover:text-slate-900 dark:border-[#2d313d] dark:text-white hover:bg-slate-100 dark:hover:bg-[#2d313d] w-8 h-8 md:w-10 md:h-10"
           >
             <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
           </Button>
@@ -240,13 +239,13 @@ export default function Dashboard({ user, profile }: DashboardProps) {
                 </Button>
               }
             />
-            <DialogContent className="bg-[#1a1d26] border-[#2d313d] text-white shadow-2xl">
+            <DialogContent className="bg-white border-slate-200 text-slate-900 dark:bg-[#1a1d26] dark:border-[#2d313d] dark:text-white shadow-2xl">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <Plus className="w-5 h-5 text-emerald-500" />
                   Add Transaction
                 </DialogTitle>
-                <DialogDescription className="text-gray-400">
+                <DialogDescription className="text-slate-500 dark:text-gray-400">
                   Enter transaction details manually and save them to this
                   month.
                 </DialogDescription>
@@ -264,19 +263,19 @@ export default function Dashboard({ user, profile }: DashboardProps) {
               render={
                 <Button
                   variant="outline"
-                  className="flex-1 md:flex-none h-11 md:h-12 px-4 md:px-6 rounded-2xl border-[#2d313d] hover:bg-[#2d313d] text-xs md:text-sm font-semibold transition-all hover:scale-105 active:scale-95 gap-2"
+                  className="flex-1 md:flex-none h-11 md:h-12 px-4 md:px-6 rounded-2xl border-slate-300 text-slate-900 hover:text-slate-900 dark:border-[#2d313d] dark:text-white dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#2d313d] text-xs md:text-sm font-semibold transition-all hover:scale-105 active:scale-95 gap-2"
                 >
                   <Upload className="w-4 h-4 md:w-5 md:h-5" /> Upload Slip
                 </Button>
               }
             />
-            <DialogContent className="bg-[#1a1d26] border-[#2d313d] text-white max-w-2xl shadow-2xl">
+            <DialogContent className="bg-white border-slate-200 text-slate-900 dark:bg-[#1a1d26] dark:border-[#2d313d] dark:text-white max-w-[calc(100%-2rem)] sm:max-w-2xl lg:max-w-3xl shadow-2xl">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <Upload className="w-5 h-5 text-blue-500" />
                   Process Bank Slip
                 </DialogTitle>
-                <DialogDescription className="text-gray-400">
+                <DialogDescription className="text-slate-500 dark:text-gray-400">
                   Upload a slip image to extract amount, type, category, and
                   date automatically.
                 </DialogDescription>
@@ -302,25 +301,25 @@ export default function Dashboard({ user, profile }: DashboardProps) {
           >
             {/* Summary Cards */}
              <div className="lg:col-span-1 space-y-6">
-               <Card className="bg-[#1a1d26]/70 backdrop-blur-sm border-[#2d313d] text-white overflow-hidden group shadow-lg shadow-emerald-950/20">
+               <Card className="bg-white/80 backdrop-blur-sm border-slate-200 dark:bg-[#1a1d26]/70 dark:border-[#2d313d] text-slate-900 dark:text-white overflow-hidden group shadow-lg shadow-emerald-950/20">
                  <div className="h-1 bg-emerald-500/50 group-hover:bg-emerald-500 transition-colors" />
                  <CardHeader className="pb-2">
-                   <CardTitle className="text-[10px] uppercase tracking-widest font-bold text-gray-400 flex items-center gap-2">
-                     <TrendingUp className="w-3 h-3 text-emerald-500" /> Monthly
+                    <CardTitle className="text-[10px] uppercase tracking-widest font-bold text-slate-500 dark:text-gray-400 flex items-center gap-2">
+                      <TrendingUp className="w-3 h-3 text-emerald-500" /> Monthly
                      Income
                    </CardTitle>
                  </CardHeader>
                 <CardContent>
-                  <div className="text-2xl md:text-3xl font-black text-emerald-500 tracking-tighter">
+                   <div className="text-2xl md:text-3xl font-black text-emerald-500 tracking-tighter">
                     ฿ {totalIncome.toLocaleString()}
                   </div>
                 </CardContent>
               </Card>
 
-               <Card className="bg-[#1a1d26]/70 backdrop-blur-sm border-[#2d313d] text-white overflow-hidden group shadow-lg shadow-rose-950/20">
+                <Card className="bg-white/80 backdrop-blur-sm border-slate-200 dark:bg-[#1a1d26]/70 dark:border-[#2d313d] text-slate-900 dark:text-white overflow-hidden group shadow-lg shadow-rose-950/20">
                  <div className="h-1 bg-rose-500/50 group-hover:bg-rose-500 transition-colors" />
                  <CardHeader className="pb-2">
-                   <CardTitle className="text-[10px] uppercase tracking-widest font-bold text-gray-400 flex items-center gap-2">
+                    <CardTitle className="text-[10px] uppercase tracking-widest font-bold text-slate-500 dark:text-gray-400 flex items-center gap-2">
                      <TrendingDown className="w-3 h-3 text-rose-500" /> Monthly
                      Expense
                    </CardTitle>

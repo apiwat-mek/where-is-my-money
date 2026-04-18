@@ -102,24 +102,24 @@ export default function CategoryManager({ userId, categories }: CategoryManagerP
   return (
     <>
       <div className="space-y-6 py-4">
-        <form onSubmit={handleAddCategory} className="space-y-4 bg-[#2d313d]/50 p-6 rounded-2xl border border-[#3d414d]">
+        <form onSubmit={handleAddCategory} className="space-y-4 bg-slate-100/70 dark:bg-[#2d313d]/50 p-6 rounded-2xl border border-slate-200 dark:border-[#3d414d]">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="text-[10px] uppercase tracking-widest font-bold text-gray-500">Category Name</Label>
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="bg-[#1a1d26] border-[#1a1d26] h-11"
+                className="bg-white border-slate-200 dark:bg-[#1a1d26] dark:border-[#1a1d26] h-11"
                 placeholder="e.g. Subscriptions"
               />
             </div>
             <div className="space-y-2">
               <Label className="text-[10px] uppercase tracking-widest font-bold text-gray-500">Type</Label>
               <Select value={type} onValueChange={(v: TransactionType) => setType(v)}>
-                <SelectTrigger className="bg-[#1a1d26] border-[#1a1d26] h-11">
+                <SelectTrigger className="bg-white border-slate-200 dark:bg-[#1a1d26] dark:border-[#1a1d26] h-11">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-[#1a1d26] border-[#2d313d] text-white">
+                <SelectContent className="bg-white border-slate-200 text-slate-900 dark:bg-[#1a1d26] dark:border-[#2d313d] dark:text-white">
                   <SelectItem value="expense">Expense</SelectItem>
                   <SelectItem value="income">Income</SelectItem>
                 </SelectContent>
@@ -135,7 +135,7 @@ export default function CategoryManager({ userId, categories }: CategoryManagerP
           <Label className="text-[10px] uppercase tracking-widest font-bold text-gray-500">Your Custom Categories</Label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {categories.map((cat) => (
-              <div key={cat.id} className="flex items-center justify-between gap-2 p-3 bg-[#2d313d]/30 rounded-xl border border-[#3d414d] hover:border-emerald-500/50 transition-colors group">
+              <div key={cat.id} className="flex items-center justify-between gap-2 p-3 bg-white dark:bg-[#2d313d]/30 rounded-xl border border-slate-200 dark:border-[#3d414d] hover:border-emerald-500/50 transition-colors group">
                 <div className="flex min-w-0 items-center gap-2">
                   <div className={`w-2 h-2 shrink-0 rounded-full ${cat.type === 'income' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]'}`} />
                   <span className="text-xs font-medium truncate">{cat.name}</span>
@@ -143,7 +143,7 @@ export default function CategoryManager({ userId, categories }: CategoryManagerP
                 <Button
                   variant="ghost"
                   size="icon-xs"
-                  className="text-gray-400 hover:text-rose-400 hover:bg-rose-400/10"
+                  className="text-slate-500 dark:text-gray-400 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-rose-400/10"
                   onClick={() => setDeletingCategory(cat)}
                   disabled={isDeleting}
                   aria-label={`Delete ${cat.name} category`}
@@ -153,8 +153,8 @@ export default function CategoryManager({ userId, categories }: CategoryManagerP
               </div>
             ))}
             {categories.length === 0 && (
-              <div className="col-span-full py-8 text-center border border-dashed border-[#2d313d] rounded-2xl">
-                <p className="text-xs text-gray-500">No custom categories yet.</p>
+              <div className="col-span-full py-8 text-center border border-dashed border-slate-200 dark:border-[#2d313d] rounded-2xl">
+                <p className="text-xs text-slate-500 dark:text-gray-500">No custom categories yet.</p>
               </div>
             )}
           </div>
@@ -164,21 +164,21 @@ export default function CategoryManager({ userId, categories }: CategoryManagerP
         open={!!deletingCategory}
         onOpenChange={(open) => !open && !isDeleting && setDeletingCategory(null)}
       >
-        <DialogContent className="bg-[#1a1d26] border-[#2d313d] text-white shadow-2xl max-w-xs">
+        <DialogContent className="bg-white border-slate-200 text-slate-900 dark:bg-[#1a1d26] dark:border-[#2d313d] dark:text-white shadow-2xl max-w-xs">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-rose-500">
               <Trash2 className="w-5 h-5" />
               Delete Category
             </DialogTitle>
-            <DialogDescription className="text-gray-400">
+            <DialogDescription className="text-slate-500 dark:text-gray-400">
               This will remove the category and reassign matching transactions to
-              &nbsp;<span className="font-semibold text-white">Other</span>.
+              &nbsp;<span className="font-semibold text-slate-900 dark:text-white">Other</span>.
             </DialogDescription>
           </DialogHeader>
           <div className="py-2">
-            <p className="text-sm text-gray-300">
+            <p className="text-sm text-slate-600 dark:text-gray-300">
               Delete{' '}
-              <span className="font-semibold text-white">
+              <span className="font-semibold text-slate-900 dark:text-white">
                 {deletingCategory?.name}
               </span>
               ?
@@ -187,7 +187,7 @@ export default function CategoryManager({ userId, categories }: CategoryManagerP
           <div className="flex gap-3">
             <Button
               variant="outline"
-              className="flex-1 border-[#2d313d] hover:bg-[#2d313d]"
+              className="flex-1 border-slate-300 dark:border-[#2d313d] hover:bg-slate-100 dark:hover:bg-[#2d313d]"
               onClick={() => setDeletingCategory(null)}
               disabled={isDeleting}
             >

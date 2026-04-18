@@ -23,6 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Wallet, Mail, Lock, User as UserIcon, Loader2 } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Auth() {
   const [loading, setLoading] = useState(false);
@@ -111,7 +112,10 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-[#0f1117] to-[#1a1d26]">
+    <div className="relative min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-[#0f1117] dark:to-[#1a1d26]">
+      <div className="absolute right-4 top-4">
+        <ThemeToggle />
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -122,27 +126,27 @@ export default function Auth() {
           <div className="mx-auto w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-4">
             <Wallet className="w-8 h-8 text-emerald-500" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
             SlipSaver
           </h1>
-          <p className="text-gray-400 mt-2">
+          <p className="text-slate-500 dark:text-gray-400 mt-2">
             Manage your finances with AI-powered slip processing.
           </p>
         </div>
 
         <Tabs defaultValue="login" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-[#2d313d] mb-6">
+          <TabsList className="grid w-full grid-cols-2 bg-slate-200 dark:bg-[#2d313d] mb-6">
             <TabsTrigger value="login">Login</TabsTrigger>
             <TabsTrigger value="signup">Sign Up</TabsTrigger>
           </TabsList>
 
           <TabsContent value="login">
-            <Card className="bg-[#1a1d26] border-[#2d313d] text-white">
+            <Card className="bg-white border-slate-200 text-slate-900 dark:bg-[#1a1d26] dark:border-[#2d313d] dark:text-white">
               <CardHeader>
                 <CardTitle>
                   {isForgotPassword ? "Reset Password" : "Welcome Back"}
                 </CardTitle>
-                <CardDescription className="text-gray-400">
+                <CardDescription className="text-slate-500 dark:text-gray-400">
                   {isForgotPassword
                     ? "Enter your email to receive a password reset link."
                     : "Enter your credentials to access your account."}
@@ -159,7 +163,7 @@ export default function Auth() {
                           id="reset-email"
                           type="email"
                           placeholder="name@example.com"
-                          className="pl-10 bg-[#0f1117] border-[#2d313d]"
+                          className="pl-10 bg-white border-slate-200 dark:bg-[#0f1117] dark:border-[#2d313d]"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
@@ -181,7 +185,7 @@ export default function Auth() {
                       <Button
                         type="button"
                         variant="ghost"
-                        className="text-gray-400 hover:text-white"
+                        className="text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"
                         onClick={() => setIsForgotPassword(false)}
                       >
                         Back to Login
@@ -195,11 +199,11 @@ export default function Auth() {
                         <Label htmlFor="email">Email</Label>
                         <div className="relative">
                           <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                          <Input
-                            id="email"
-                            type="email"
-                            placeholder="name@example.com"
-                            className="pl-10 bg-[#0f1117] border-[#2d313d]"
+                            <Input
+                              id="email"
+                              type="email"
+                              placeholder="name@example.com"
+                              className="pl-10 bg-white border-slate-200 dark:bg-[#0f1117] dark:border-[#2d313d]"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
@@ -220,11 +224,11 @@ export default function Auth() {
                         </div>
                         <div className="relative">
                           <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                          <Input
-                            id="password"
-                            type="password"
-                            placeholder="••••••••"
-                            className="pl-10 bg-[#0f1117] border-[#2d313d]"
+                            <Input
+                              id="password"
+                              type="password"
+                              placeholder="••••••••"
+                              className="pl-10 bg-white border-slate-200 dark:bg-[#0f1117] dark:border-[#2d313d]"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
@@ -246,10 +250,10 @@ export default function Auth() {
 
                     <div className="relative py-4">
                       <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t border-[#2d313d]" />
+                        <span className="w-full border-t border-slate-200 dark:border-[#2d313d]" />
                       </div>
                       <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-[#1a1d26] px-2 text-gray-500">
+                        <span className="bg-white dark:bg-[#1a1d26] px-2 text-slate-500 dark:text-gray-500">
                           Or continue with
                         </span>
                       </div>
@@ -259,7 +263,7 @@ export default function Auth() {
                       variant="outline"
                       onClick={handleGoogleLogin}
                       disabled={loading}
-                      className="w-full bg-transparent border-[#2d313d] text-white hover:bg-[#2d313d]"
+                      className="w-full bg-transparent border-slate-300 text-slate-900 hover:bg-slate-100 dark:border-[#2d313d] dark:text-white dark:hover:bg-[#2d313d]"
                     >
                       <img
                         src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
@@ -275,10 +279,10 @@ export default function Auth() {
           </TabsContent>
 
           <TabsContent value="signup">
-            <Card className="bg-[#1a1d26] border-[#2d313d] text-white">
+            <Card className="bg-white border-slate-200 text-slate-900 dark:bg-[#1a1d26] dark:border-[#2d313d] dark:text-white">
               <CardHeader>
                 <CardTitle>Create Account</CardTitle>
-                <CardDescription className="text-gray-400">
+                <CardDescription className="text-slate-500 dark:text-gray-400">
                   Join SlipSaver and start managing your slips.
                 </CardDescription>
               </CardHeader>
@@ -292,7 +296,7 @@ export default function Auth() {
                         id="name"
                         type="text"
                         placeholder="John Doe"
-                        className="pl-10 bg-[#0f1117] border-[#2d313d]"
+                        className="pl-10 bg-white border-slate-200 dark:bg-[#0f1117] dark:border-[#2d313d]"
                         value={displayName}
                         onChange={(e) => setDisplayName(e.target.value)}
                         required
@@ -307,7 +311,7 @@ export default function Auth() {
                         id="signup-email"
                         type="email"
                         placeholder="name@example.com"
-                        className="pl-10 bg-[#0f1117] border-[#2d313d]"
+                        className="pl-10 bg-white border-slate-200 dark:bg-[#0f1117] dark:border-[#2d313d]"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
@@ -322,7 +326,7 @@ export default function Auth() {
                         id="signup-password"
                         type="password"
                         placeholder="••••••••"
-                        className="pl-10 bg-[#0f1117] border-[#2d313d]"
+                        className="pl-10 bg-white border-slate-200 dark:bg-[#0f1117] dark:border-[#2d313d]"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
@@ -337,7 +341,7 @@ export default function Auth() {
                         id="confirm-password"
                         type="password"
                         placeholder="••••••••"
-                        className="pl-10 bg-[#0f1117] border-[#2d313d]"
+                        className="pl-10 bg-white border-slate-200 dark:bg-[#0f1117] dark:border-[#2d313d]"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required
@@ -359,10 +363,10 @@ export default function Auth() {
 
                 <div className="relative py-4">
                   <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-[#2d313d]" />
+                    <span className="w-full border-t border-slate-200 dark:border-[#2d313d]" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-[#1a1d26] px-2 text-gray-500">
+                      <span className="bg-white dark:bg-[#1a1d26] px-2 text-slate-500 dark:text-gray-500">
                       Or continue with
                     </span>
                   </div>
@@ -372,7 +376,7 @@ export default function Auth() {
                   variant="outline"
                   onClick={handleGoogleLogin}
                   disabled={loading}
-                  className="w-full bg-transparent border-[#2d313d] text-white hover:bg-[#2d313d]"
+                  className="w-full bg-transparent border-slate-300 text-slate-900 hover:bg-slate-100 dark:border-[#2d313d] dark:text-white dark:hover:bg-[#2d313d]"
                 >
                   <img
                     src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
