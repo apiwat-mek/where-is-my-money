@@ -158,7 +158,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
   );
 
   return (
-    <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-6 md:space-y-8">
+    <div className="max-w-6xl mx-auto p-4 sm:p-5 md:p-8 space-y-5 md:space-y-8">
       {/* Header */}
       <header className="flex flex-row justify-between items-center gap-4">
         <div className="space-y-0.5">
@@ -196,33 +196,33 @@ export default function Dashboard({ user, profile }: DashboardProps) {
             </DialogContent>
           </Dialog>
           <ThemeToggle />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() =>
-              setView(view === "dashboard" ? "reports" : "dashboard")
-            }
-            className="text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"
-          >
-            {view === "dashboard" ? <PieChart /> : <TrendingUp />}
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleLogout}
-            className="text-slate-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
-          >
-            <LogOut />
-          </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() =>
+                setView(view === "dashboard" ? "reports" : "dashboard")
+              }
+              className="text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"
+            >
+              {view === "dashboard" ? <PieChart /> : <TrendingUp />}
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleLogout}
+              className="text-slate-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
+            >
+              <LogOut />
+            </Button>
         </div>
       </header>
 
       {/* Month Selector & Balance */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-white to-slate-100 border border-slate-200 dark:from-[#1a1d26] dark:to-[#171a22] dark:border-[#2d313d] rounded-3xl p-6 md:p-8 flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8 shadow-2xl">
+      <div className="relative overflow-hidden bg-gradient-to-br from-white to-slate-100 border border-slate-200 dark:from-[#1a1d26] dark:to-[#171a22] dark:border-[#2d313d] rounded-3xl p-4 sm:p-5 md:p-8 flex flex-col md:flex-row justify-between items-center gap-4 sm:gap-6 md:gap-8 shadow-2xl">
         <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 blur-[100px] -mr-32 -mt-32" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/5 blur-[100px] -ml-32 -mb-32" />
 
-        <div className="flex items-center gap-4 md:gap-6 relative z-10">
+        <div className="flex items-center justify-between w-full md:w-auto gap-3 md:gap-6 relative z-10">
           <Button
             variant="outline"
             size="icon"
@@ -231,7 +231,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
           >
             <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
           </Button>
-          <div className="text-center min-w-[180px] md:min-w-[220px]">
+          <div className="text-center min-w-[150px] sm:min-w-[180px] md:min-w-[220px]">
             <Dialog
               open={isPeriodPickerOpen}
               onOpenChange={setIsPeriodPickerOpen}
@@ -240,7 +240,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
                 render={
                   <Button
                     variant="ghost"
-                    className="mx-auto h-auto rounded-xl px-3 py-1.5 text-[9px] md:text-[10px] text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white uppercase tracking-[0.2em] font-bold mb-1 flex items-center gap-1.5"
+                      className="mx-auto h-auto rounded-xl px-3 py-1.5 text-[10px] md:text-[10px] text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white uppercase tracking-[0.15em] md:tracking-[0.2em] font-bold mb-1 flex items-center gap-1.5"
                   >
                     {monthName}
                     <ChevronDown className="w-3.5 h-3.5" />
@@ -319,10 +319,10 @@ export default function Dashboard({ user, profile }: DashboardProps) {
               <span className="text-xs md:text-sm font-medium text-slate-500 dark:text-gray-400">
                 ฿
               </span>
-               <p className="text-3xl md:text-4xl font-black tracking-tighter bg-gradient-to-br from-slate-900 to-slate-500 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
-                 {balance.toLocaleString()}
-               </p>
-            </div>
+                <p className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter bg-gradient-to-br from-slate-900 to-slate-500 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
+                  {balance.toLocaleString()}
+                </p>
+             </div>
           </div>
           <Button
             variant="outline"
@@ -334,11 +334,11 @@ export default function Dashboard({ user, profile }: DashboardProps) {
           </Button>
         </div>
 
-        <div className="flex gap-3 md:gap-4 w-full md:w-auto relative z-10">
+        <div className="flex flex-col sm:flex-row gap-2.5 md:gap-4 w-full md:w-auto relative z-10">
           <Dialog open={isManualOpen} onOpenChange={setIsManualOpen}>
             <DialogTrigger
               render={
-                <Button className="flex-1 md:flex-none h-11 md:h-12 px-4 md:px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs md:text-sm font-semibold shadow-lg shadow-emerald-500/30 transition-all hover:scale-105 active:scale-95 gap-2">
+                 <Button className="w-full sm:w-auto h-11 md:h-12 px-4 md:px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs md:text-sm font-semibold shadow-lg shadow-emerald-500/30 transition-all hover:scale-105 active:scale-95 gap-2">
                   <Plus className="w-4 h-4 md:w-5 md:h-5" /> Add Manual
                 </Button>
               }
@@ -367,7 +367,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
               render={
                 <Button
                   variant="outline"
-                  className="flex-1 md:flex-none h-11 md:h-12 px-4 md:px-6 rounded-2xl border-slate-300 text-slate-900 hover:text-slate-900 dark:border-[#2d313d] dark:text-white dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#2d313d] text-xs md:text-sm font-semibold transition-all hover:scale-105 active:scale-95 gap-2"
+                   className="w-full sm:w-auto h-11 md:h-12 px-4 md:px-6 rounded-2xl border-slate-300 text-slate-900 hover:text-slate-900 dark:border-[#2d313d] dark:text-white dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#2d313d] text-xs md:text-sm font-semibold transition-all hover:scale-105 active:scale-95 gap-2"
                 >
                   <Upload className="w-4 h-4 md:w-5 md:h-5" /> Upload Slip
                 </Button>
@@ -401,7 +401,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+            className="grid grid-cols-1 lg:grid-cols-3 gap-5 md:gap-8"
           >
             {/* Summary Cards */}
              <div className="lg:col-span-1 space-y-6">
