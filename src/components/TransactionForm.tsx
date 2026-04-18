@@ -68,9 +68,21 @@ export default function TransactionForm({ userId, categories, onSuccess, initial
   };
 
   const filteredCategories = categories.filter(c => c.type === type);
-  const defaultCategories = type === 'expense' 
+  const defaultCategories = type === 'expense'
     ? ['Food', 'Transport', 'Shopping', 'Utilities', 'Rent', 'Health', 'Other']
     : ['Salary', 'Investment', 'Gift', 'Other'];
+  const normalizeCategory = (name: string) => name.trim();
+  const sortCategoriesWithOtherLast = (names: string[]) => {
+    const withoutOther = names.filter((name) => name.toLowerCase() !== 'other');
+    return names.some((name) => name.toLowerCase() === 'other') ? [...withoutOther, 'Other'] : withoutOther;
+  };
+  const categoryOptions = sortCategoriesWithOtherLast(
+    Array.from(
+      new Set(
+        [...defaultCategories, ...filteredCategories.map((cat) => normalizeCategory(cat.name))].filter(Boolean),
+      ),
+    ),
+  );
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 py-4">
@@ -123,11 +135,8 @@ export default function TransactionForm({ userId, categories, onSuccess, initial
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
             <SelectContent className="bg-white border-slate-200 text-slate-900 dark:bg-[#1a1d26] dark:border-[#2d313d] dark:text-white">
-              {defaultCategories.map(c => (
-                <SelectItem key={c} value={c}>{c}</SelectItem>
-              ))}
-              {filteredCategories.map(cat => (
-                <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
+              {categoryOptions.map((option) => (
+                <SelectItem key={option} value={option}>{option}</SelectItem>
               ))}
             </SelectContent>
           </Select>

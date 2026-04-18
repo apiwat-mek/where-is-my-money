@@ -56,6 +56,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
   const [view, setView] = useState<"dashboard" | "reports">("dashboard");
   const [isUploaderOpen, setIsUploaderOpen] = useState(false);
   const [isManualOpen, setIsManualOpen] = useState(false);
+  const [isBalanceHighlight, setIsBalanceHighlight] = useState(false);
 
   useEffect(() => {
     const startOfMonth = new Date(
@@ -122,6 +123,10 @@ export default function Dashboard({ user, profile }: DashboardProps) {
     .reduce((sum, t) => sum + t.amount, 0);
 
   const balance = totalIncome - totalExpense;
+  const balanceGlowClass =
+    balance >= 0
+      ? "drop-shadow-[0_0_14px_rgba(16,185,129,0.35)]"
+      : "drop-shadow-[0_0_14px_rgba(244,63,94,0.35)]";
 
   const handleLogout = () => auth.signOut();
 
@@ -148,6 +153,12 @@ export default function Dashboard({ user, profile }: DashboardProps) {
   useEffect(() => {
     setPickerYear(currentMonth.getFullYear());
   }, [currentMonth]);
+
+  useEffect(() => {
+    setIsBalanceHighlight(true);
+    const timer = window.setTimeout(() => setIsBalanceHighlight(false), 500);
+    return () => window.clearTimeout(timer);
+  }, [balance, currentMonth]);
 
   const monthName = currentMonth.toLocaleString("default", {
     month: "long",
@@ -178,7 +189,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"
+                  className="text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white transition-all duration-200 hover:scale-110 active:scale-95 hover:bg-slate-100/80 dark:hover:bg-[#2d313d]/60"
                 >
                   <Settings />
                 </Button>
@@ -202,7 +213,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
               onClick={() =>
                 setView(view === "dashboard" ? "reports" : "dashboard")
               }
-              className="text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"
+              className="text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white transition-all duration-200 hover:scale-110 active:scale-95 hover:bg-slate-100/80 dark:hover:bg-[#2d313d]/60"
             >
               {view === "dashboard" ? <PieChart /> : <TrendingUp />}
             </Button>
@@ -210,7 +221,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
               variant="ghost"
               size="icon"
               onClick={handleLogout}
-              className="text-slate-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
+              className="text-slate-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-all duration-200 hover:scale-110 active:scale-95 hover:bg-rose-100/70 dark:hover:bg-rose-500/10"
             >
               <LogOut />
             </Button>
@@ -227,7 +238,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
             variant="outline"
             size="icon"
             onClick={() => changeMonth(-1)}
-            className="rounded-full border-slate-300 text-slate-700 hover:text-slate-900 dark:border-[#2d313d] dark:text-white hover:bg-slate-100 dark:hover:bg-[#2d313d] w-8 h-8 md:w-10 md:h-10"
+            className="rounded-full border-slate-300 text-slate-700 hover:text-slate-900 dark:border-[#2d313d] dark:text-white hover:bg-slate-100 dark:hover:bg-[#2d313d] w-8 h-8 md:w-10 md:h-10 transition-all duration-200 hover:scale-110 active:scale-95 hover:shadow-lg hover:shadow-slate-900/10 dark:hover:shadow-black/30"
           >
             <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
           </Button>
@@ -240,14 +251,14 @@ export default function Dashboard({ user, profile }: DashboardProps) {
                 render={
                   <Button
                     variant="ghost"
-                      className="mx-auto h-auto rounded-xl px-3 py-1.5 text-[10px] md:text-[10px] text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white uppercase tracking-[0.15em] md:tracking-[0.2em] font-bold mb-1 flex items-center gap-1.5"
+                      className="mx-auto h-auto rounded-xl px-3 py-1.5 text-[10px] md:text-[10px] text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white uppercase tracking-[0.15em] md:tracking-[0.2em] font-bold mb-1 flex items-center gap-1.5 transition-all duration-200 hover:bg-slate-100/80 dark:hover:bg-[#2d313d]/50 hover:scale-[1.03] active:scale-[0.98]"
                   >
                     {monthName}
                     <ChevronDown className="w-3.5 h-3.5" />
                   </Button>
                 }
               />
-              <DialogContent className="bg-white border-slate-200 text-slate-900 dark:bg-[#1a1d26] dark:border-[#2d313d] dark:text-white max-w-sm shadow-2xl">
+              <DialogContent className="bg-white border-slate-200 text-slate-900 dark:bg-[#1a1d26] dark:border-[#2d313d] dark:text-white max-w-[calc(100%-1.5rem)] sm:max-w-sm shadow-2xl">
                 <DialogHeader>
                   <DialogTitle>Select Month & Year</DialogTitle>
                   <DialogDescription className="text-slate-500 dark:text-gray-400">
@@ -262,7 +273,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
                       variant="ghost"
                       size="icon-sm"
                       onClick={() => setPickerYear((prev) => prev - 1)}
-                      className="text-slate-600 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"
+                      className="text-slate-600 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white transition-all duration-200 hover:scale-110 active:scale-95 hover:bg-slate-200/70 dark:hover:bg-[#2d313d]"
                       aria-label="Previous year"
                     >
                       <ChevronLeft />
@@ -273,7 +284,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
                       variant="ghost"
                       size="icon-sm"
                       onClick={() => setPickerYear((prev) => prev + 1)}
-                      className="text-slate-600 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"
+                      className="text-slate-600 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white transition-all duration-200 hover:scale-110 active:scale-95 hover:bg-slate-200/70 dark:hover:bg-[#2d313d]"
                       aria-label="Next year"
                     >
                       <ChevronRight />
@@ -291,11 +302,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
                           key={monthLabel}
                           type="button"
                           variant={isSelected ? "default" : "outline"}
-                          className={
-                            isSelected
-                              ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-                              : "border-slate-300 text-slate-700 hover:bg-slate-100 dark:border-[#2d313d] dark:text-gray-300 dark:hover:bg-[#2d313d] dark:hover:text-white"
-                          }
+                          className={`${isSelected ? "bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/25" : "border-slate-300 text-slate-700 hover:bg-slate-100 dark:border-[#2d313d] dark:text-gray-300 dark:hover:bg-[#2d313d] dark:hover:text-white"} transition-all duration-200 hover:scale-[1.03] active:scale-[0.97]`}
                           onClick={() => jumpToMonth(monthIndex)}
                         >
                           {monthLabel}
@@ -307,7 +314,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full border-slate-300 text-slate-700 hover:bg-slate-100 dark:border-[#2d313d] dark:text-gray-300 dark:hover:bg-[#2d313d] dark:hover:text-white"
+                    className="w-full border-slate-300 text-slate-700 hover:bg-slate-100 dark:border-[#2d313d] dark:text-gray-300 dark:hover:bg-[#2d313d] dark:hover:text-white transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]"
                     onClick={resetToCurrentMonth}
                   >
                     Back to current month
@@ -319,16 +326,22 @@ export default function Dashboard({ user, profile }: DashboardProps) {
               <span className="text-xs md:text-sm font-medium text-slate-500 dark:text-gray-400">
                 ฿
               </span>
-                <p className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter bg-gradient-to-br from-slate-900 to-slate-500 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
+                <motion.p
+                  key={`${currentMonth.getFullYear()}-${currentMonth.getMonth()}-${balance}`}
+                  initial={{ opacity: 0.7, y: 4, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                  className={`text-3xl sm:text-3xl md:text-4xl font-black tracking-tighter bg-gradient-to-br from-slate-900 to-slate-500 dark:from-white dark:to-gray-400 bg-clip-text text-transparent transition-all duration-300 ${isBalanceHighlight ? balanceGlowClass : ""}`}
+                >
                   {balance.toLocaleString()}
-                </p>
+                </motion.p>
              </div>
           </div>
           <Button
             variant="outline"
             size="icon"
             onClick={() => changeMonth(1)}
-            className="rounded-full border-slate-300 text-slate-700 hover:text-slate-900 dark:border-[#2d313d] dark:text-white hover:bg-slate-100 dark:hover:bg-[#2d313d] w-8 h-8 md:w-10 md:h-10"
+            className="rounded-full border-slate-300 text-slate-700 hover:text-slate-900 dark:border-[#2d313d] dark:text-white hover:bg-slate-100 dark:hover:bg-[#2d313d] w-8 h-8 md:w-10 md:h-10 transition-all duration-200 hover:scale-110 active:scale-95 hover:shadow-lg hover:shadow-slate-900/10 dark:hover:shadow-black/30"
           >
             <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
           </Button>
@@ -338,7 +351,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
           <Dialog open={isManualOpen} onOpenChange={setIsManualOpen}>
             <DialogTrigger
               render={
-                 <Button className="w-full sm:w-auto h-11 md:h-12 px-4 md:px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs md:text-sm font-semibold shadow-lg shadow-emerald-500/30 transition-all hover:scale-105 active:scale-95 gap-2">
+                 <Button className="w-full sm:w-auto h-11 md:h-12 px-4 md:px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs md:text-sm font-semibold shadow-lg shadow-emerald-500/30 transition-all duration-300 hover:scale-[1.03] hover:-translate-y-0.5 hover:shadow-xl hover:shadow-emerald-500/35 active:scale-[0.98] gap-2">
                   <Plus className="w-4 h-4 md:w-5 md:h-5" /> Add Manual
                 </Button>
               }
@@ -367,7 +380,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
               render={
                 <Button
                   variant="outline"
-                   className="w-full sm:w-auto h-11 md:h-12 px-4 md:px-6 rounded-2xl border-slate-300 text-slate-900 hover:text-slate-900 dark:border-[#2d313d] dark:text-white dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#2d313d] text-xs md:text-sm font-semibold transition-all hover:scale-105 active:scale-95 gap-2"
+                   className="w-full sm:w-auto h-11 md:h-12 px-4 md:px-6 rounded-2xl border-slate-300 text-slate-900 hover:text-slate-900 dark:border-[#2d313d] dark:text-white dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#2d313d] text-xs md:text-sm font-semibold transition-all duration-300 hover:scale-[1.03] hover:-translate-y-0.5 hover:shadow-xl hover:shadow-slate-900/10 dark:hover:shadow-black/25 active:scale-[0.98] gap-2"
                 >
                   <Upload className="w-4 h-4 md:w-5 md:h-5" /> Upload Slip
                 </Button>

@@ -23,6 +23,8 @@ import {
   Upload,
   RotateCcw,
   Sparkles,
+  Search,
+  Tag,
   type LucideIcon,
 } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -31,6 +33,8 @@ import { deleteDoc, doc, updateDoc, deleteField } from 'firebase/firestore';
 import { toast } from 'sonner';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
+import { Input } from './ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger } from './ui/select';
 import TransactionForm from './TransactionForm';
 
 interface TransactionListProps {
@@ -74,6 +78,11 @@ const getDefaultCategoryIcon = (category: string, type: string) => {
 };
 
 export default function TransactionList({ transactions, userId, categories }: TransactionListProps) {
+  const [typeFilter, setTypeFilter] = useState<'all' | 'income' | 'expense'>('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [minAmount, setMinAmount] = useState('');
+  const [maxAmount, setMaxAmount] = useState('');
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [deletingTransactionId, setDeletingTransactionId] = useState<string | null>(null);
   const [iconEditingTransaction, setIconEditingTransaction] = useState<Transaction | null>(null);
@@ -85,6 +94,76 @@ export default function TransactionList({ transactions, userId, categories }: Tr
     iconEditingTransaction?.iconImage
       ? null
       : iconEditingTransaction?.iconKey ?? 'default';
+
+  const minAmountValue = minAmount.trim() === '' ? null : Number(minAmount);
+  const maxAmountValue = maxAmount.trim() === '' ? null : Number(maxAmount);
+  const normalizedSearch = searchTerm.trim().toLowerCase();
+  const normalizeCategory = (name: string) => name.trim();
+  const sortCategoriesWithOtherLast = (names: string[]) => {
+    const withoutOther = names
+      .filter((name) => name.toLowerCase() !== 'other')
+      .sort((a, b) => a.localeCompare(b));
+    return names.some((name) => name.toLowerCase() === 'other') ? [...withoutOther, 'Other'] : withoutOther;
+  };
+
+  const availableCategoryFilters = sortCategoriesWithOtherLast(
+    Array.from(
+      new Set(
+        [
+          ...categories
+            .filter((cat) => typeFilter === 'all' || cat.type === typeFilter)
+            .map((cat) => normalizeCategory(cat.name))
+            .filter(Boolean),
+          ...transactions
+            .filter((tx) => typeFilter === 'all' || tx.type === typeFilter)
+            .map((tx) => normalizeCategory(tx.category))
+            .filter(Boolean),
+        ],
+      ),
+    ),
+  );
+  const categoryFilterLabel = categoryFilter === 'all' ? 'All categories' : categoryFilter;
+
+  React.useEffect(() => {
+    if (categoryFilter !== 'all' && !availableCategoryFilters.includes(categoryFilter)) {
+      setCategoryFilter('all');
+    }
+  }, [availableCategoryFilters, categoryFilter]);
+
+  const filteredTransactions = transactions.filter((tx) => {
+    if (typeFilter !== 'all' && tx.type !== typeFilter) return false;
+    if (categoryFilter !== 'all' && tx.category !== categoryFilter) return false;
+
+    if (normalizedSearch) {
+      const haystack = `${tx.category} ${tx.description || ''}`.toLowerCase();
+      if (!haystack.includes(normalizedSearch)) return false;
+    }
+
+    if (minAmountValue !== null && !Number.isNaN(minAmountValue) && tx.amount < minAmountValue) {
+      return false;
+    }
+
+    if (maxAmountValue !== null && !Number.isNaN(maxAmountValue) && tx.amount > maxAmountValue) {
+      return false;
+    }
+
+    return true;
+  });
+
+  const hasActiveFilters =
+    typeFilter !== 'all' ||
+    categoryFilter !== 'all' ||
+    searchTerm.trim() !== '' ||
+    minAmount.trim() !== '' ||
+    maxAmount.trim() !== '';
+
+  const clearFilters = () => {
+    setTypeFilter('all');
+    setCategoryFilter('all');
+    setSearchTerm('');
+    setMinAmount('');
+    setMaxAmount('');
+  };
 
   const handleDelete = async () => {
     if (!deletingTransactionId) return;
@@ -235,29 +314,145 @@ export default function TransactionList({ transactions, userId, categories }: Tr
 
   return (
     <>
-      <Card className="bg-white/80 backdrop-blur-sm border-slate-200 dark:bg-[#1a1d26]/50 dark:border-[#2d313d] text-slate-900 dark:text-white overflow-hidden">
+      <Card className="bg-white/80 backdrop-blur-sm border-slate-200 dark:bg-[#1a1d26]/50 dark:border-[#2d313d] text-slate-900 dark:text-white overflow-hidden transition-shadow duration-300 hover:shadow-xl hover:shadow-emerald-950/10">
         <CardHeader className="border-b border-slate-200 dark:border-[#2d313d] bg-slate-50/80 dark:bg-[#1a1d26]/30">
-          <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <FileText className="w-5 h-5 text-emerald-500" />
-            Recent Transactions
-          </CardTitle>
+          <div className="space-y-3">
+            <CardTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
+              <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500" />
+              Recent Transactions
+            </CardTitle>
+
+            <div className="rounded-2xl border border-slate-200 dark:border-[#2d313d] bg-white/70 dark:bg-[#0f1117]/60 p-2 sm:p-3 space-y-2 transition-all duration-300 hover:border-emerald-200 dark:hover:border-emerald-500/20">
+              <div className="flex flex-col sm:flex-row gap-2">
+                <div className="relative flex-1">
+                  <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 dark:text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <Input
+                    value={searchTerm}
+                    onChange={(event) => setSearchTerm(event.target.value)}
+                    placeholder="Search category or description"
+                    className="pl-9 bg-white dark:bg-[#0f1117] border-slate-200 dark:border-[#2d313d] h-9 sm:h-10 text-sm transition-all duration-200 focus-visible:ring-emerald-500/20"
+                  />
+                </div>
+                <div className="grid grid-cols-3 gap-1.5 rounded-xl border border-slate-200 dark:border-[#2d313d] bg-slate-100/80 dark:bg-[#0f1117] p-1 sm:w-[300px]">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className={`h-7 sm:h-8 text-[11px] sm:text-xs font-semibold rounded-lg transition-all duration-200 active:scale-[0.97] ${
+                      typeFilter === 'all'
+                        ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm'
+                        : 'text-slate-600 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white hover:bg-white dark:hover:bg-[#171a22]'
+                    }`}
+                    onClick={() => setTypeFilter('all')}
+                  >
+                    All
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className={`h-7 sm:h-8 text-[11px] sm:text-xs font-semibold rounded-lg transition-all duration-200 active:scale-[0.97] ${
+                      typeFilter === 'income'
+                        ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm'
+                        : 'text-slate-600 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white hover:bg-white dark:hover:bg-[#171a22]'
+                    }`}
+                    onClick={() => setTypeFilter('income')}
+                  >
+                    Income
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className={`h-7 sm:h-8 text-[11px] sm:text-xs font-semibold rounded-lg transition-all duration-200 active:scale-[0.97] ${
+                      typeFilter === 'expense'
+                        ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm'
+                        : 'text-slate-600 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white hover:bg-white dark:hover:bg-[#171a22]'
+                    }`}
+                    onClick={() => setTypeFilter('expense')}
+                  >
+                    Expense
+                  </Button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="w-full bg-white dark:bg-[#0f1117] border-slate-200 dark:border-[#2d313d] h-9 sm:h-10 px-3 transition-all duration-200 hover:border-emerald-300 dark:hover:border-emerald-500/40">
+                    <span className="flex items-center gap-2 min-w-0">
+                      <Tag className="w-3.5 h-3.5 text-slate-400 dark:text-gray-500 shrink-0" />
+                      <span
+                        className={`text-xs sm:text-sm truncate ${
+                          categoryFilter === 'all'
+                            ? 'text-slate-500 dark:text-gray-400'
+                            : 'text-slate-700 dark:text-gray-200 font-medium'
+                        }`}
+                      >
+                        {categoryFilterLabel}
+                      </span>
+                    </span>
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border-slate-200 text-slate-900 dark:bg-[#1a1d26] dark:border-[#2d313d] dark:text-white">
+                    <SelectItem value="all">All categories</SelectItem>
+                    {availableCategoryFilters.map((categoryName) => (
+                      <SelectItem key={categoryName} value={categoryName}>
+                        {categoryName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={minAmount}
+                  onChange={(event) => setMinAmount(event.target.value)}
+                  placeholder="Min ฿"
+                  className="bg-white dark:bg-[#0f1117] border-slate-200 dark:border-[#2d313d] h-9 sm:h-10 text-sm transition-all duration-200 focus-visible:ring-emerald-500/20"
+                />
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={maxAmount}
+                  onChange={(event) => setMaxAmount(event.target.value)}
+                  placeholder="Max ฿"
+                  className="bg-white dark:bg-[#0f1117] border-slate-200 dark:border-[#2d313d] h-9 sm:h-10 text-sm transition-all duration-200 focus-visible:ring-emerald-500/20"
+                />
+                {hasActiveFilters ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="border-slate-300 dark:border-[#2d313d] h-9 sm:h-10 text-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                    onClick={clearFilters}
+                  >
+                    Clear filters
+                  </Button>
+                ) : (
+                  <div className="hidden lg:block" />
+                )}
+              </div>
+
+              <p className="text-xs text-slate-500 dark:text-gray-400">
+                {filteredTransactions.length} / {transactions.length} shown
+              </p>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="p-0">
           <div className="divide-y divide-slate-200 dark:divide-[#2d313d]">
-            {transactions.map((tx, index) => (
+            {filteredTransactions.map((tx, index) => (
               <motion.div
                 key={tx.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="flex items-start sm:items-center justify-between p-3 sm:p-4 hover:bg-slate-100 dark:hover:bg-[#2d313d]/50 transition-colors group relative overflow-hidden gap-2"
+                className="flex items-start sm:items-center justify-between p-3 sm:p-4 hover:bg-slate-100 dark:hover:bg-[#2d313d]/50 transition-all duration-200 group relative overflow-hidden gap-2 sm:hover:translate-x-0.5"
               >
                 <div className={`absolute left-0 top-0 bottom-0 w-1 ${tx.type === 'income' ? 'bg-emerald-500' : 'bg-rose-500'} opacity-50`} />
                 <div className="flex items-center gap-3 min-w-0">
                   <button
                     type="button"
                     onClick={() => setIconEditingTransaction(tx)}
-                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-100 dark:bg-[#0f1117] flex items-center justify-center border border-slate-200 dark:border-[#2d313d] shadow-inner hover:border-emerald-500/60 hover:bg-slate-200 dark:hover:bg-[#171c28] hover:shadow-[0_0_0_1px_rgba(16,185,129,0.35)] dark:hover:shadow-[0_0_0_1px_rgba(16,185,129,0.55)] transition-all cursor-pointer shrink-0"
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-100 dark:bg-[#0f1117] flex items-center justify-center border border-slate-200 dark:border-[#2d313d] shadow-inner hover:border-emerald-500/60 hover:bg-slate-200 dark:hover:bg-[#171c28] hover:shadow-[0_0_0_1px_rgba(16,185,129,0.35)] dark:hover:shadow-[0_0_0_1px_rgba(16,185,129,0.55)] transition-all duration-200 hover:-translate-y-0.5 active:scale-95 cursor-pointer shrink-0"
                     aria-label={`Change icon for ${tx.category}`}
                     title="Change icon"
                   >
@@ -265,11 +460,14 @@ export default function TransactionList({ transactions, userId, categories }: Tr
                   </button>
                   <div className="min-w-0">
                     <p className="font-medium text-sm truncate">{tx.category}</p>
-                    <p className="text-[11px] text-slate-500 dark:text-gray-500 font-mono">
+                    <p className="text-[11px] text-slate-500 dark:text-gray-500 font-mono md:hidden">
                       {tx.date.toDate().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </p>
-                    <p className="text-[11px] text-slate-500 dark:text-gray-500 truncate max-w-[180px] sm:max-w-[300px]">
+                    <p className="text-[11px] text-slate-500 dark:text-gray-500 truncate max-w-[180px] sm:max-w-[300px] md:hidden">
                       {tx.description || 'No description'}
+                    </p>
+                    <p className="hidden md:block text-[11px] text-slate-500 dark:text-gray-500 truncate max-w-[380px]">
+                      {tx.date.toDate().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} • {tx.description || 'No description'}
                     </p>
                   </div>
                 </div>
@@ -284,7 +482,7 @@ export default function TransactionList({ transactions, userId, categories }: Tr
                       variant="ghost" 
                       size="icon-xs" 
                       onClick={() => setEditingTransaction(tx)}
-                      className="text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-[#3d414d] w-8 h-8 md:w-9 md:h-9"
+                      className="text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-[#3d414d] w-8 h-8 md:w-9 md:h-9 transition-all duration-200 hover:scale-110 active:scale-95"
                     >
                       <Edit2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
                     </Button>
@@ -292,7 +490,7 @@ export default function TransactionList({ transactions, userId, categories }: Tr
                       variant="ghost" 
                       size="icon-xs" 
                       onClick={() => setDeletingTransactionId(tx.id)}
-                      className="text-slate-500 dark:text-gray-400 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-rose-400/10 w-8 h-8 md:w-9 md:h-9"
+                      className="text-slate-500 dark:text-gray-400 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-rose-400/10 w-8 h-8 md:w-9 md:h-9 transition-all duration-200 hover:scale-110 active:scale-95"
                     >
                       <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
                     </Button>
@@ -300,6 +498,21 @@ export default function TransactionList({ transactions, userId, categories }: Tr
                 </div>
               </motion.div>
             ))}
+            {filteredTransactions.length === 0 && (
+              <div className="py-12 px-4 text-center">
+                <p className="text-sm text-slate-500 dark:text-gray-400">No transactions match your filters.</p>
+                {hasActiveFilters && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="mt-3 border-slate-300 dark:border-[#2d313d]"
+                    onClick={clearFilters}
+                  >
+                    Reset filters
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

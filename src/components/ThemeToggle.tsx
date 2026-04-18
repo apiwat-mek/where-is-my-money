@@ -16,7 +16,7 @@ export default function ThemeToggle() {
       <Button
         variant="ghost"
         size="icon"
-        className="text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"
+        className="text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white transition-all duration-200 hover:scale-110 active:scale-95 hover:bg-slate-100/80 dark:hover:bg-[#2d313d]/60"
         aria-label="Toggle theme"
       >
         <Sun />
@@ -31,7 +31,7 @@ export default function ThemeToggle() {
       variant="ghost"
       size="icon"
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"
+      className="text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white transition-all duration-200 hover:scale-110 active:scale-95 hover:bg-slate-100/80 dark:hover:bg-[#2d313d]/60"
       aria-label="Toggle theme"
     >
       {isDark ? <Sun /> : <Moon />}
