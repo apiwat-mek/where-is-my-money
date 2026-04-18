@@ -21,6 +21,7 @@ import {
   Wallet,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   PieChart,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
@@ -50,6 +51,8 @@ export default function Dashboard({ user, profile }: DashboardProps) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [isPeriodPickerOpen, setIsPeriodPickerOpen] = useState(false);
+  const [pickerYear, setPickerYear] = useState(new Date().getFullYear());
   const [view, setView] = useState<"dashboard" | "reports">("dashboard");
   const [isUploaderOpen, setIsUploaderOpen] = useState(false);
   const [isManualOpen, setIsManualOpen] = useState(false);
@@ -128,10 +131,31 @@ export default function Dashboard({ user, profile }: DashboardProps) {
     setCurrentMonth(newDate);
   };
 
+  const jumpToMonth = (monthIndex: number) => {
+    const next = new Date(currentMonth);
+    next.setFullYear(pickerYear, monthIndex, 1);
+    setCurrentMonth(next);
+    setIsPeriodPickerOpen(false);
+  };
+
+  const resetToCurrentMonth = () => {
+    const now = new Date();
+    setCurrentMonth(now);
+    setPickerYear(now.getFullYear());
+    setIsPeriodPickerOpen(false);
+  };
+
+  useEffect(() => {
+    setPickerYear(currentMonth.getFullYear());
+  }, [currentMonth]);
+
   const monthName = currentMonth.toLocaleString("default", {
     month: "long",
     year: "numeric",
   });
+  const monthOptions = Array.from({ length: 12 }, (_, monthIndex) =>
+    new Date(2000, monthIndex, 1).toLocaleString("default", { month: "short" }),
+  );
 
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-6 md:space-y-8">
@@ -207,10 +231,90 @@ export default function Dashboard({ user, profile }: DashboardProps) {
           >
             <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
           </Button>
-          <div className="text-center min-w-[140px] md:min-w-[180px]">
-            <p className="text-[9px] md:text-[10px] text-slate-500 dark:text-gray-400 uppercase tracking-[0.2em] font-bold mb-1">
-              {monthName}
-            </p>
+          <div className="text-center min-w-[180px] md:min-w-[220px]">
+            <Dialog
+              open={isPeriodPickerOpen}
+              onOpenChange={setIsPeriodPickerOpen}
+            >
+              <DialogTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    className="mx-auto h-auto rounded-xl px-3 py-1.5 text-[9px] md:text-[10px] text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white uppercase tracking-[0.2em] font-bold mb-1 flex items-center gap-1.5"
+                  >
+                    {monthName}
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  </Button>
+                }
+              />
+              <DialogContent className="bg-white border-slate-200 text-slate-900 dark:bg-[#1a1d26] dark:border-[#2d313d] dark:text-white max-w-sm shadow-2xl">
+                <DialogHeader>
+                  <DialogTitle>Select Month & Year</DialogTitle>
+                  <DialogDescription className="text-slate-500 dark:text-gray-400">
+                    Jump directly to any month in one tap.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between rounded-xl border border-slate-200 dark:border-[#2d313d] bg-slate-50 dark:bg-[#0f1117] p-1.5">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => setPickerYear((prev) => prev - 1)}
+                      className="text-slate-600 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"
+                      aria-label="Previous year"
+                    >
+                      <ChevronLeft />
+                    </Button>
+                    <p className="text-sm font-bold tracking-wide">{pickerYear}</p>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => setPickerYear((prev) => prev + 1)}
+                      className="text-slate-600 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"
+                      aria-label="Next year"
+                    >
+                      <ChevronRight />
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2">
+                    {monthOptions.map((monthLabel, monthIndex) => {
+                      const isSelected =
+                        currentMonth.getFullYear() === pickerYear &&
+                        currentMonth.getMonth() === monthIndex;
+
+                      return (
+                        <Button
+                          key={monthLabel}
+                          type="button"
+                          variant={isSelected ? "default" : "outline"}
+                          className={
+                            isSelected
+                              ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                              : "border-slate-300 text-slate-700 hover:bg-slate-100 dark:border-[#2d313d] dark:text-gray-300 dark:hover:bg-[#2d313d] dark:hover:text-white"
+                          }
+                          onClick={() => jumpToMonth(monthIndex)}
+                        >
+                          {monthLabel}
+                        </Button>
+                      );
+                    })}
+                  </div>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full border-slate-300 text-slate-700 hover:bg-slate-100 dark:border-[#2d313d] dark:text-gray-300 dark:hover:bg-[#2d313d] dark:hover:text-white"
+                    onClick={resetToCurrentMonth}
+                  >
+                    Back to current month
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
             <div className="flex items-baseline justify-center gap-1">
               <span className="text-xs md:text-sm font-medium text-slate-500 dark:text-gray-400">
                 ฿
