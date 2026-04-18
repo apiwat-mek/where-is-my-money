@@ -49,6 +49,7 @@ interface DashboardProps {
 
 export default function Dashboard({ user, profile }: DashboardProps) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isTransactionsLoading, setIsTransactionsLoading] = useState(true);
   const [categories, setCategories] = useState<Category[]>([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [isPeriodPickerOpen, setIsPeriodPickerOpen] = useState(false);
@@ -59,6 +60,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
   const [isBalanceHighlight, setIsBalanceHighlight] = useState(false);
 
   useEffect(() => {
+    setIsTransactionsLoading(true);
     const startOfMonth = new Date(
       currentMonth.getFullYear(),
       currentMonth.getMonth(),
@@ -89,10 +91,12 @@ export default function Dashboard({ user, profile }: DashboardProps) {
           txs.push({ id: doc.id, ...doc.data() } as Transaction);
         });
         setTransactions(txs);
+        setIsTransactionsLoading(false);
       },
       (error) => {
         console.error("Firestore error:", error);
         toast.error("Failed to load transactions.");
+        setIsTransactionsLoading(false);
       },
     );
 
@@ -459,7 +463,12 @@ export default function Dashboard({ user, profile }: DashboardProps) {
                 transactions={transactions}
                 userId={user.uid}
                 categories={categories}
+                isLoading={isTransactionsLoading}
               />
+            </div>
+
+            <div className="lg:hidden">
+              <Reports transactions={transactions} compact />
             </div>
           </motion.div>
         ) : (

@@ -34,9 +34,18 @@ const COLORS = [
 export default function Reports({ transactions, compact = false }: ReportsProps) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    const updateViewport = () => setIsMobile(mediaQuery.matches);
+    updateViewport();
+    mediaQuery.addEventListener("change", updateViewport);
+    return () => mediaQuery.removeEventListener("change", updateViewport);
   }, []);
 
   const isDark = mounted ? resolvedTheme === 'dark' : true;
@@ -62,6 +71,7 @@ export default function Reports({ transactions, compact = false }: ReportsProps)
     name,
     value: expenseByCategory[name]
   })).sort((a, b) => b.value - a.value);
+  const totalPieValue = pieData.reduce((sum, item) => sum + item.value, 0);
 
   // Income vs Expense
   const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
@@ -137,7 +147,7 @@ export default function Reports({ transactions, compact = false }: ReportsProps)
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name.slice(0, 8)} ${(percent * 100).toFixed(0)}%`}
+                  label={isMobile ? false : ({ name, percent }) => `${name.slice(0, 8)} ${(percent * 100).toFixed(0)}%`}
                   outerRadius="80%"
                   fill="#8884d8"
                   dataKey="value"
@@ -158,6 +168,21 @@ export default function Reports({ transactions, compact = false }: ReportsProps)
               </PieChart>
             </ResponsiveContainer>
           </div>
+          {isMobile && pieData.length > 0 && (
+            <div className="mt-3 space-y-1.5">
+              {pieData.slice(0, 4).map((item, index) => (
+                <div key={item.name} className="flex items-center justify-between text-xs gap-3">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
+                    <span className="truncate text-slate-600 dark:text-gray-300">{item.name}</span>
+                  </div>
+                  <span className="shrink-0 text-slate-500 dark:text-gray-400">
+                    {totalPieValue > 0 ? `${Math.round((item.value / totalPieValue) * 100)}%` : "0%"}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 

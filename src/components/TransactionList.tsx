@@ -25,6 +25,8 @@ import {
   Sparkles,
   Search,
   Tag,
+  Clock3,
+  PartyPopper,
   type LucideIcon,
 } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -41,6 +43,7 @@ interface TransactionListProps {
   transactions: Transaction[];
   userId: string;
   categories: Category[];
+  isLoading?: boolean;
 }
 
 type IconPreset = {
@@ -77,7 +80,14 @@ const getDefaultCategoryIcon = (category: string, type: string) => {
   return <MoreHorizontal className="w-5 h-5 text-gray-400" />;
 };
 
-export default function TransactionList({ transactions, userId, categories }: TransactionListProps) {
+type PendingDeletion = {
+  timeoutId: ReturnType<typeof setTimeout>;
+  transaction: Transaction;
+};
+
+const DELETE_UNDO_MS = 5000;
+
+export default function TransactionList({ transactions, userId, categories, isLoading = false }: TransactionListProps) {
   const [typeFilter, setTypeFilter] = useState<'all' | 'income' | 'expense'>('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -85,10 +95,12 @@ export default function TransactionList({ transactions, userId, categories }: Tr
   const [maxAmount, setMaxAmount] = useState('');
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [deletingTransactionId, setDeletingTransactionId] = useState<string | null>(null);
+  const [pendingDeletions, setPendingDeletions] = useState<Record<string, PendingDeletion>>({});
   const [iconEditingTransaction, setIconEditingTransaction] = useState<Transaction | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUpdatingIcon, setIsUpdatingIcon] = useState(false);
   const uploadInputRef = React.useRef<HTMLInputElement | null>(null);
+  const pendingDeletionsRef = React.useRef<Record<string, PendingDeletion>>({});
 
   const currentPresetKey =
     iconEditingTransaction?.iconImage
@@ -131,6 +143,7 @@ export default function TransactionList({ transactions, userId, categories }: Tr
   }, [availableCategoryFilters, categoryFilter]);
 
   const filteredTransactions = transactions.filter((tx) => {
+    if (tx.id && pendingDeletions[tx.id]) return false;
     if (typeFilter !== 'all' && tx.type !== typeFilter) return false;
     if (categoryFilter !== 'all' && tx.category !== categoryFilter) return false;
 
@@ -167,19 +180,74 @@ export default function TransactionList({ transactions, userId, categories }: Tr
 
   const handleDelete = async () => {
     if (!deletingTransactionId) return;
-    
-    setIsDeleting(true);
-    try {
-      await deleteDoc(doc(db, 'transactions', deletingTransactionId));
-      toast.success("Transaction deleted!");
+
+    const transactionToDelete = transactions.find((tx) => tx.id === deletingTransactionId);
+    if (!transactionToDelete?.id) {
+      toast.error('Unable to queue deletion for this transaction.');
       setDeletingTransactionId(null);
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to delete transaction.");
-    } finally {
-      setIsDeleting(false);
+      return;
     }
+
+    setIsDeleting(true);
+    const txId = transactionToDelete.id;
+    const timeoutId = setTimeout(async () => {
+      try {
+        await deleteDoc(doc(db, 'transactions', txId));
+        toast.success('Transaction deleted.');
+      } catch (error) {
+        console.error(error);
+        toast.error('Failed to delete transaction.');
+      } finally {
+        setPendingDeletions((prev) => {
+          const next = { ...prev };
+          delete next[txId];
+          return next;
+        });
+      }
+    }, DELETE_UNDO_MS);
+
+    setPendingDeletions((prev) => ({
+      ...prev,
+      [txId]: {
+        timeoutId,
+        transaction: transactionToDelete,
+      },
+    }));
+
+    toast('Transaction queued for deletion.', {
+      duration: DELETE_UNDO_MS,
+      description: 'You can undo within 5 seconds.',
+      action: {
+        label: 'Undo',
+        onClick: () => {
+          setPendingDeletions((prev) => {
+            const entry = prev[txId];
+            if (!entry) return prev;
+            clearTimeout(entry.timeoutId);
+            const next = { ...prev };
+            delete next[txId];
+            return next;
+          });
+          toast.success('Deletion canceled.');
+        },
+      },
+    });
+
+    setDeletingTransactionId(null);
+    setIsDeleting(false);
   };
+
+  React.useEffect(() => {
+    pendingDeletionsRef.current = pendingDeletions;
+  }, [pendingDeletions]);
+
+  React.useEffect(() => {
+    return () => {
+      Object.values(pendingDeletionsRef.current).forEach((entry) => {
+        clearTimeout(entry.timeoutId);
+      });
+    };
+  }, []);
 
   const handleChoosePreset = async (presetKey: string) => {
     if (!iconEditingTransaction?.id) return;
@@ -299,14 +367,54 @@ export default function TransactionList({ transactions, userId, categories }: Tr
     return getDefaultCategoryIcon(tx.category, tx.type);
   };
 
+  if (isLoading) {
+    return (
+      <Card className="bg-white/80 backdrop-blur-sm border-slate-200 dark:bg-[#1a1d26]/50 dark:border-[#2d313d] text-slate-900 dark:text-white overflow-hidden">
+        <CardHeader className="border-b border-slate-200 dark:border-[#2d313d] bg-slate-50/80 dark:bg-[#1a1d26]/30">
+          <CardTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
+            <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500" />
+            Recent Transactions
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="divide-y divide-slate-200 dark:divide-[#2d313d]">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="p-3 sm:p-4">
+                <div className="flex items-center justify-between gap-3 animate-pulse">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-200 dark:bg-[#2d313d]" />
+                    <div className="space-y-2 min-w-0 flex-1">
+                      <div className="h-3.5 rounded bg-slate-200 dark:bg-[#2d313d] w-28" />
+                      <div className="h-2.5 rounded bg-slate-200 dark:bg-[#2d313d] w-44" />
+                    </div>
+                  </div>
+                  <div className="h-4 rounded bg-slate-200 dark:bg-[#2d313d] w-20" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (transactions.length === 0) {
     return (
-      <Card className="bg-white/80 backdrop-blur-sm border-slate-200 dark:bg-[#1a1d26]/50 dark:border-[#2d313d] text-slate-900 dark:text-white">
-        <CardContent className="flex flex-col items-center justify-center py-16 text-slate-500 dark:text-gray-500 space-y-4">
-          <div className="w-16 h-16 bg-slate-200 dark:bg-[#2d313d] rounded-full flex items-center justify-center">
-            <DollarSign className="w-8 h-8 opacity-20" />
+      <Card className="bg-white/80 backdrop-blur-sm border-slate-200 dark:bg-[#1a1d26]/50 dark:border-[#2d313d] text-slate-900 dark:text-white overflow-hidden">
+        <CardHeader className="border-b border-slate-200 dark:border-[#2d313d] bg-slate-50/80 dark:bg-[#1a1d26]/30">
+          <CardTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
+            <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500" />
+            Recent Transactions
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center justify-center py-14 text-slate-500 dark:text-gray-400 space-y-4">
+          <div className="w-16 h-16 bg-gradient-to-br from-emerald-100 to-cyan-100 dark:from-[#1b2c28] dark:to-[#1c2a37] rounded-2xl flex items-center justify-center border border-slate-200 dark:border-[#2d313d]">
+            <PartyPopper className="w-7 h-7 text-emerald-500" />
           </div>
-          <p className="text-sm">No transactions found for this month.</p>
+          <div className="text-center space-y-1">
+            <p className="text-sm font-semibold text-slate-700 dark:text-gray-200">All clear for this month ✨</p>
+            <p className="text-xs text-slate-500 dark:text-gray-400">Add your first transaction or upload a slip to get started.</p>
+          </div>
         </CardContent>
       </Card>
     );
@@ -339,7 +447,7 @@ export default function TransactionList({ transactions, userId, categories }: Tr
                     variant="ghost"
                     className={`h-7 sm:h-8 text-[11px] sm:text-xs font-semibold rounded-lg transition-all duration-200 active:scale-[0.97] ${
                       typeFilter === 'all'
-                        ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm'
+                        ? 'bg-sky-500 hover:bg-sky-600 text-white shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white hover:bg-white dark:hover:bg-[#171a22]'
                     }`}
                     onClick={() => setTypeFilter('all')}
@@ -363,7 +471,7 @@ export default function TransactionList({ transactions, userId, categories }: Tr
                     variant="ghost"
                     className={`h-7 sm:h-8 text-[11px] sm:text-xs font-semibold rounded-lg transition-all duration-200 active:scale-[0.97] ${
                       typeFilter === 'expense'
-                        ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm'
+                        ? 'bg-rose-500 hover:bg-rose-600 text-white shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white hover:bg-white dark:hover:bg-[#171a22]'
                     }`}
                     onClick={() => setTypeFilter('expense')}
@@ -500,12 +608,16 @@ export default function TransactionList({ transactions, userId, categories }: Tr
             ))}
             {filteredTransactions.length === 0 && (
               <div className="py-12 px-4 text-center">
-                <p className="text-sm text-slate-500 dark:text-gray-400">No transactions match your filters.</p>
+                <div className="mx-auto w-14 h-14 rounded-2xl bg-slate-100 dark:bg-[#202433] border border-slate-200 dark:border-[#2d313d] flex items-center justify-center mb-3">
+                  <Clock3 className="w-6 h-6 text-slate-400 dark:text-gray-500" />
+                </div>
+                <p className="text-sm font-semibold text-slate-700 dark:text-gray-200">No matching transactions</p>
+                <p className="text-xs mt-1 text-slate-500 dark:text-gray-400">Try widening your filters a little.</p>
                 {hasActiveFilters && (
                   <Button
                     type="button"
                     variant="outline"
-                    className="mt-3 border-slate-300 dark:border-[#2d313d]"
+                    className="mt-4 border-slate-300 dark:border-[#2d313d]"
                     onClick={clearFilters}
                   >
                     Reset filters
@@ -639,25 +751,35 @@ export default function TransactionList({ transactions, userId, categories }: Tr
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={!!deletingTransactionId} onOpenChange={(open) => !open && setDeletingTransactionId(null)}>
-        <DialogContent className="bg-white border-slate-200 text-slate-900 dark:bg-[#1a1d26] dark:border-[#2d313d] dark:text-white shadow-2xl max-w-xs">
-          <DialogHeader>
+        <DialogContent className="bg-white border-slate-200 text-slate-900 dark:bg-[#1a1d26] dark:border-[#2d313d] dark:text-white shadow-2xl max-w-[calc(100%-1.5rem)] sm:max-w-xs p-0 overflow-hidden">
+          <DialogHeader className="px-5 pt-5 pb-3 space-y-2">
             <DialogTitle className="flex items-center gap-2 text-rose-500">
-              <Trash2 className="w-5 h-5" />
+              <span className="w-8 h-8 rounded-lg bg-rose-500/10 dark:bg-rose-500/15 flex items-center justify-center">
+                <Trash2 className="w-4 h-4" />
+              </span>
               Confirm Deletion
             </DialogTitle>
-            <DialogDescription className="text-slate-500 dark:text-gray-400">
+            <DialogDescription className="text-slate-500 dark:text-gray-400 leading-relaxed">
               This action permanently removes the selected transaction.
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
-            <p className="text-sm text-slate-600 dark:text-gray-400 leading-relaxed">Are you sure you want to delete this transaction? This action cannot be undone.</p>
+
+          <div className="px-5 pb-4">
+            <div className="rounded-xl border border-rose-500/20 bg-rose-500/5 dark:bg-rose-500/10 px-3 py-2.5">
+              <p className="text-xs text-slate-600 dark:text-gray-300 leading-relaxed">
+                Are you sure you want to delete this transaction?
+                <br />
+                <span className="font-medium text-rose-500 dark:text-rose-400">This action cannot be undone.</span>
+              </p>
+            </div>
           </div>
-          <div className="flex gap-3">
-            <Button variant="outline" className="flex-1 border-slate-300 dark:border-[#2d313d] hover:bg-slate-100 dark:hover:bg-[#2d313d]" onClick={() => setDeletingTransactionId(null)}>
+
+          <div className="px-5 pb-5 pt-3 border-t border-slate-200 dark:border-[#2d313d] flex gap-2.5">
+            <Button variant="outline" className="flex-1 border-slate-300 dark:border-[#2d313d] hover:bg-slate-100 dark:hover:bg-[#2d313d] h-10" onClick={() => setDeletingTransactionId(null)}>
               Cancel
             </Button>
             <Button 
-              className="flex-1 bg-rose-500 hover:bg-rose-600 text-white shadow-lg shadow-rose-500/20" 
+              className="flex-1 bg-rose-500 hover:bg-rose-600 text-white shadow-lg shadow-rose-500/20 h-10" 
               onClick={handleDelete}
               disabled={isDeleting}
             >
