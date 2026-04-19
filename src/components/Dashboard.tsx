@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { lazy, Suspense, useState, useEffect } from "react";
 import { User } from "firebase/auth";
 import { db, auth } from "../lib/firebase";
 import {
@@ -26,9 +26,6 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
-import SlipUploader from "./SlipUploader";
-import TransactionList from "./TransactionList";
-import Reports from "./Reports";
 import {
   Dialog,
   DialogContent,
@@ -37,10 +34,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import TransactionForm from "./TransactionForm";
-import CategoryManager from "./CategoryManager";
 import { Settings } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
+
+const SlipUploader = lazy(() => import("./SlipUploader"));
+const TransactionList = lazy(() => import("./TransactionList"));
+const Reports = lazy(() => import("./Reports"));
+const TransactionForm = lazy(() => import("./TransactionForm"));
+const CategoryManager = lazy(() => import("./CategoryManager"));
 
 interface DashboardProps {
   user: User;
@@ -171,6 +172,11 @@ export default function Dashboard({ user, profile }: DashboardProps) {
   const monthOptions = Array.from({ length: 12 }, (_, monthIndex) =>
     new Date(2000, monthIndex, 1).toLocaleString("default", { month: "short" }),
   );
+  const sectionFallback = (
+    <div className="flex items-center justify-center rounded-2xl border border-slate-200 dark:border-[#2d313d] bg-white/70 dark:bg-[#1a1d26]/70 p-6 text-slate-500 dark:text-gray-400">
+      Loading...
+    </div>
+  );
 
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-5 md:p-8 space-y-5 md:space-y-8">
@@ -207,7 +213,9 @@ export default function Dashboard({ user, profile }: DashboardProps) {
                   categories.
                 </DialogDescription>
               </DialogHeader>
-              <CategoryManager userId={user.uid} categories={categories} />
+              <Suspense fallback={sectionFallback}>
+                <CategoryManager userId={user.uid} categories={categories} />
+              </Suspense>
             </DialogContent>
           </Dialog>
           <ThemeToggle />
@@ -233,7 +241,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
       </header>
 
       {/* Month Selector & Balance */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-white to-slate-100 border border-slate-200 dark:from-[#1a1d26] dark:to-[#171a22] dark:border-[#2d313d] rounded-3xl p-4 sm:p-5 md:p-8 flex flex-col md:flex-row justify-between items-center gap-4 sm:gap-6 md:gap-8 shadow-2xl">
+      <div className="relative overflow-hidden bg-linear-to-br from-white to-slate-100 border border-slate-200 dark:from-[#1a1d26] dark:to-[#171a22] dark:border-[#2d313d] rounded-3xl p-4 sm:p-5 md:p-8 flex flex-col md:flex-row justify-between items-center gap-4 sm:gap-6 md:gap-8 shadow-2xl">
         <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 blur-[100px] -mr-32 -mt-32" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/5 blur-[100px] -ml-32 -mb-32" />
 
@@ -246,7 +254,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
           >
             <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
           </Button>
-          <div className="text-center min-w-[150px] sm:min-w-[180px] md:min-w-[220px]">
+          <div className="text-center min-w-37.5 sm:min-w-45 md:min-w-55">
             <Dialog
               open={isPeriodPickerOpen}
               onOpenChange={setIsPeriodPickerOpen}
@@ -335,7 +343,7 @@ export default function Dashboard({ user, profile }: DashboardProps) {
                   initial={{ opacity: 0.7, y: 4, scale: 0.98 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ duration: 0.3, ease: "easeOut" }}
-                  className={`text-3xl sm:text-3xl md:text-4xl font-black tracking-tighter bg-gradient-to-br from-slate-900 to-slate-500 dark:from-white dark:to-gray-400 bg-clip-text text-transparent transition-all duration-300 ${isBalanceHighlight ? balanceGlowClass : ""}`}
+                  className={`text-3xl sm:text-3xl md:text-4xl font-black tracking-tighter bg-linear-to-br from-slate-900 to-slate-500 dark:from-white dark:to-gray-400 bg-clip-text text-transparent transition-all duration-300 ${isBalanceHighlight ? balanceGlowClass : ""}`}
                 >
                   {balance.toLocaleString()}
                 </motion.p>
@@ -371,11 +379,13 @@ export default function Dashboard({ user, profile }: DashboardProps) {
                   month.
                 </DialogDescription>
               </DialogHeader>
-              <TransactionForm
-                userId={user.uid}
-                categories={categories}
-                onSuccess={() => setIsManualOpen(false)}
-              />
+              <Suspense fallback={sectionFallback}>
+                <TransactionForm
+                  userId={user.uid}
+                  categories={categories}
+                  onSuccess={() => setIsManualOpen(false)}
+                />
+              </Suspense>
             </DialogContent>
           </Dialog>
 
@@ -401,11 +411,13 @@ export default function Dashboard({ user, profile }: DashboardProps) {
                   date automatically.
                 </DialogDescription>
               </DialogHeader>
-              <SlipUploader
-                userId={user.uid}
-                categories={categories}
-                onSuccess={() => setIsUploaderOpen(false)}
-              />
+              <Suspense fallback={sectionFallback}>
+                <SlipUploader
+                  userId={user.uid}
+                  categories={categories}
+                  onSuccess={() => setIsUploaderOpen(false)}
+                />
+              </Suspense>
             </DialogContent>
           </Dialog>
         </div>
@@ -453,22 +465,28 @@ export default function Dashboard({ user, profile }: DashboardProps) {
               </Card>
 
               <div className="hidden lg:block">
-                <Reports transactions={transactions} compact />
+                <Suspense fallback={sectionFallback}>
+                  <Reports transactions={transactions} compact />
+                </Suspense>
               </div>
             </div>
 
             {/* Transaction List */}
             <div className="lg:col-span-2">
-              <TransactionList
-                transactions={transactions}
-                userId={user.uid}
-                categories={categories}
-                isLoading={isTransactionsLoading}
-              />
+              <Suspense fallback={sectionFallback}>
+                <TransactionList
+                  transactions={transactions}
+                  userId={user.uid}
+                  categories={categories}
+                  isLoading={isTransactionsLoading}
+                />
+              </Suspense>
             </div>
 
             <div className="lg:hidden">
-              <Reports transactions={transactions} compact />
+              <Suspense fallback={sectionFallback}>
+                <Reports transactions={transactions} compact />
+              </Suspense>
             </div>
           </motion.div>
         ) : (
@@ -478,7 +496,9 @@ export default function Dashboard({ user, profile }: DashboardProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
           >
-            <Reports transactions={transactions} />
+            <Suspense fallback={sectionFallback}>
+              <Reports transactions={transactions} />
+            </Suspense>
           </motion.div>
         )}
       </AnimatePresence>
