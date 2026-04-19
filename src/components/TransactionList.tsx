@@ -243,7 +243,7 @@ export default function TransactionList({ transactions, userId, categories, isLo
 
   React.useEffect(() => {
     return () => {
-      Object.values(pendingDeletionsRef.current).forEach((entry) => {
+      Object.values(pendingDeletionsRef.current).forEach((entry: PendingDeletion) => {
         clearTimeout(entry.timeoutId);
       });
     };
