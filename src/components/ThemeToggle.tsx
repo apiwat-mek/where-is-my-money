@@ -1,0 +1,40 @@
+import { useEffect, useState } from "react";
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
+import { Button } from "./ui/button";
+
+export default function ThemeToggle() {
+  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <Button
+        variant="ghost"
+        size="icon"
+        className="text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white transition-all duration-200 hover:scale-110 active:scale-95 hover:bg-slate-100/80 dark:hover:bg-[#2d313d]/60"
+        aria-label="Toggle theme"
+      >
+        <Sun />
+      </Button>
+    );
+  }
+
+  const isDark = resolvedTheme === "dark";
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      className="text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white transition-all duration-200 hover:scale-110 active:scale-95 hover:bg-slate-100/80 dark:hover:bg-[#2d313d]/60"
+      aria-label="Toggle theme"
+    >
+      {isDark ? <Sun /> : <Moon />}
+    </Button>
+  );
+}

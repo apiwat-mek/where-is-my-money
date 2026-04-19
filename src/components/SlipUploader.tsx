@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { Upload, FileText, Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { Upload, Loader2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { Category } from "../types";
@@ -217,18 +217,18 @@ export default function SlipUploader({
         <div
           {...getRootProps()}
           className={`border-2 border-dashed rounded-2xl p-8 md:p-12 text-center cursor-pointer transition-all
-            ${isDragActive ? "border-emerald-500 bg-emerald-500/10" : "border-[#2d313d] hover:border-gray-500"}`}
+            ${isDragActive ? "border-emerald-500 bg-emerald-500/10" : "border-slate-200 dark:border-[#2d313d] hover:border-gray-500"}`}
         >
           <input {...getInputProps()} />
           <div className="flex flex-col items-center gap-3 md:gap-4">
-            <div className="w-12 h-12 md:w-16 md:h-16 bg-[#2d313d] rounded-full flex items-center justify-center">
-              <Upload className="w-6 h-6 md:w-8 md:h-8 text-gray-400" />
+            <div className="w-12 h-12 md:w-16 md:h-16 bg-slate-200 dark:bg-[#2d313d] rounded-full flex items-center justify-center">
+              <Upload className="w-6 h-6 md:w-8 md:h-8 text-slate-500 dark:text-gray-400" />
             </div>
             <div>
               <p className="text-base md:text-lg font-medium">
                 Drop your bank slip here
               </p>
-              <p className="text-xs md:text-sm text-gray-500">
+              <p className="text-xs md:text-sm text-slate-500 dark:text-gray-500">
                 Support PNG, JPG, WEBP
               </p>
             </div>
@@ -237,10 +237,10 @@ export default function SlipUploader({
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           <div className="space-y-1 md:space-y-2">
-            <p className="text-[10px] md:text-xs font-medium text-gray-400 uppercase tracking-wider">
+            <p className="text-[10px] md:text-xs font-medium text-slate-500 dark:text-gray-400 uppercase tracking-wider">
               Slip Preview
             </p>
-            <div className="rounded-xl overflow-hidden border border-[#2d313d] bg-black/20 aspect-[4/5] lg:aspect-[3/4] flex items-center justify-center max-w-[160px] md:max-w-[240px] lg:max-w-none mx-auto">
+            <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-[#2d313d] bg-black/5 dark:bg-black/20 aspect-[4/5] lg:aspect-[3/4] flex items-center justify-center max-w-[160px] md:max-w-[240px] lg:max-w-none mx-auto">
               <img
                 src={preview}
                 alt="Slip"
@@ -250,7 +250,7 @@ export default function SlipUploader({
           </div>
 
           <div className="space-y-3 md:space-y-6 flex flex-col h-full">
-            <p className="text-[10px] md:text-xs font-medium text-gray-400 uppercase tracking-wider">
+            <p className="text-[10px] md:text-xs font-medium text-slate-500 dark:text-gray-400 uppercase tracking-wider">
               Extracted Information
             </p>
 
@@ -264,7 +264,7 @@ export default function SlipUploader({
                   className="flex flex-col items-center justify-center h-40 md:h-64 gap-3 md:gap-4"
                 >
                   <Loader2 className="w-6 h-6 md:w-8 md:h-8 text-emerald-500 animate-spin" />
-                  <p className="text-xs md:text-sm text-gray-400">
+                  <p className="text-xs md:text-sm text-slate-500 dark:text-gray-400">
                     AI is analyzing your slip...
                   </p>
                 </motion.div>
@@ -277,16 +277,16 @@ export default function SlipUploader({
                 >
                   <div className="space-y-2 md:space-y-4 max-h-[220px] md:max-h-none overflow-y-auto pr-2 custom-scrollbar">
                     <div className="grid grid-cols-2 gap-2 md:gap-4">
-                      <div className="bg-[#2d313d] p-2 md:p-3 rounded-xl overflow-hidden">
-                        <p className="text-[8px] md:text-[10px] uppercase text-gray-500 font-bold">
+                      <div className="bg-slate-100 dark:bg-[#2d313d] p-2 md:p-3 rounded-xl overflow-hidden">
+                        <p className="text-[8px] md:text-[10px] uppercase text-slate-500 dark:text-gray-500 font-bold">
                           Amount
                         </p>
                         <p className="text-base md:text-xl font-bold truncate">
                           ฿ {extractedData.amount.toLocaleString()}
                         </p>
                       </div>
-                      <div className="bg-[#2d313d] p-2 md:p-3 rounded-xl overflow-hidden">
-                        <p className="text-[8px] md:text-[10px] uppercase text-gray-500 font-bold">
+                      <div className="bg-slate-100 dark:bg-[#2d313d] p-2 md:p-3 rounded-xl overflow-hidden">
+                        <p className="text-[8px] md:text-[10px] uppercase text-slate-500 dark:text-gray-500 font-bold">
                           Type
                         </p>
                         <p
@@ -297,8 +297,8 @@ export default function SlipUploader({
                       </div>
                     </div>
 
-                    <div className="bg-[#2d313d] p-2 md:p-3 rounded-xl overflow-hidden">
-                      <p className="text-[8px] md:text-[10px] uppercase text-gray-500 font-bold">
+                    <div className="bg-slate-100 dark:bg-[#2d313d] p-2 md:p-3 rounded-xl overflow-hidden">
+                      <p className="text-[8px] md:text-[10px] uppercase text-slate-500 dark:text-gray-500 font-bold">
                         Category
                       </p>
                       {extractedData.requiresCategorySelection ? (
@@ -313,10 +313,10 @@ export default function SlipUploader({
                             value={selectedCategory}
                             onValueChange={setSelectedCategory}
                           >
-                            <SelectTrigger className="bg-[#0f1117] border-[#3d414d] h-9 md:h-10 text-xs md:text-sm">
+                            <SelectTrigger className="bg-white dark:bg-[#0f1117] border-slate-200 dark:border-[#3d414d] h-9 md:h-10 text-xs md:text-sm">
                               <SelectValue placeholder="Select category" />
                             </SelectTrigger>
-                            <SelectContent className="bg-[#1a1d26] border-[#2d313d] text-white">
+                            <SelectContent className="bg-white border-slate-200 text-slate-900 dark:bg-[#1a1d26] dark:border-[#2d313d] dark:text-white">
                               {availableCategories.map((categoryName) => (
                                 <SelectItem
                                   key={categoryName}
@@ -335,17 +335,17 @@ export default function SlipUploader({
                       )}
                     </div>
 
-                    <div className="bg-[#2d313d] p-2 md:p-3 rounded-xl overflow-hidden">
-                      <p className="text-[8px] md:text-[10px] uppercase text-gray-500 font-bold">
+                    <div className="bg-slate-100 dark:bg-[#2d313d] p-2 md:p-3 rounded-xl overflow-hidden">
+                      <p className="text-[8px] md:text-[10px] uppercase text-slate-500 dark:text-gray-500 font-bold">
                         Description
                       </p>
-                      <p className="text-[11px] md:text-sm text-gray-300 break-words line-clamp-2">
+                      <p className="text-[11px] md:text-sm text-slate-600 dark:text-gray-300 break-words line-clamp-2">
                         {extractedData.description || "No description"}
                       </p>
                     </div>
 
-                    <div className="bg-[#2d313d] p-2 md:p-3 rounded-xl overflow-hidden">
-                      <p className="text-[8px] md:text-[10px] uppercase text-gray-500 font-bold">
+                    <div className="bg-slate-100 dark:bg-[#2d313d] p-2 md:p-3 rounded-xl overflow-hidden">
+                      <p className="text-[8px] md:text-[10px] uppercase text-slate-500 dark:text-gray-500 font-bold">
                         Date
                       </p>
                       <p className="text-[11px] md:text-sm truncate">
@@ -360,7 +360,7 @@ export default function SlipUploader({
                   <div className="flex gap-2 md:gap-3 pt-3 md:pt-4 mt-auto">
                     <Button
                       variant="outline"
-                      className="flex-1 border-[#2d313d] h-9 md:h-11 text-xs md:text-sm"
+                      className="flex-1 border-slate-300 dark:border-[#2d313d] hover:bg-slate-100 dark:hover:bg-[#2d313d] h-9 md:h-11 text-xs md:text-sm"
                       onClick={() => setPreview(null)}
                     >
                       Retry

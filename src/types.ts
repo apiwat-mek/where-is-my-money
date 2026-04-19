@@ -9,6 +9,8 @@ export interface Transaction {
   description: string;
   date: any; // Firestore Timestamp
   slipUrl?: string;
+  iconKey?: string;
+  iconImage?: string;
   createdAt: any;
 }
 
