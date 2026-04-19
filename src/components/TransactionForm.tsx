@@ -130,7 +130,7 @@ export default function TransactionForm({ userId, categories, onSuccess, initial
 
         <div className="space-y-2">
           <Label className="text-[10px] uppercase tracking-widest font-bold text-slate-500 dark:text-gray-500">Category</Label>
-          <Select value={category} onValueChange={setCategory}>
+          <Select value={category} onValueChange={(value) => setCategory(value ?? '')}>
             <SelectTrigger className="bg-white dark:bg-[#0f1117] border-slate-200 dark:border-[#2d313d] h-11">
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
@@ -148,7 +148,7 @@ export default function TransactionForm({ userId, categories, onSuccess, initial
               type="date" 
               value={date} 
               onChange={(e) => setDate(e.target.value)}
-              className="bg-white dark:bg-[#0f1117] border-slate-200 dark:border-[#2d313d] h-11 [color-scheme:light] dark:[color-scheme:dark]"
+              className="bg-white dark:bg-[#0f1117] border-slate-200 dark:border-[#2d313d] h-11 scheme-light dark:scheme-dark"
               required
             />
         </div>

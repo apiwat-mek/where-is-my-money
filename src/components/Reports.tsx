@@ -80,6 +80,11 @@ export default function Reports({ transactions, compact = false }: ReportsProps)
   const barData = [
     { name: 'Summary', income: totalIncome, expense: totalExpense }
   ];
+  const formatPieLabel = ({ name, percent }: { name?: unknown; percent?: unknown }) => {
+    const labelName = typeof name === 'string' ? name : 'Other';
+    const labelPercent = typeof percent === 'number' && Number.isFinite(percent) ? percent : 0;
+    return `${labelName} ${(labelPercent * 100).toFixed(0)}%`;
+  };
 
   if (compact) {
     return (
@@ -88,7 +93,7 @@ export default function Reports({ transactions, compact = false }: ReportsProps)
           <CardTitle className="text-sm font-medium text-slate-500 dark:text-gray-400">Expense Distribution</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-[200px] w-full">
+          <div className="h-50 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -139,7 +144,7 @@ export default function Reports({ transactions, compact = false }: ReportsProps)
           <CardTitle className="text-base md:text-lg">Expense by Category</CardTitle>
         </CardHeader>
         <CardContent className="p-2 md:p-6">
-          <div className="h-[250px] md:h-[300px] w-full">
+          <div className="h-62.5 md:h-75 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -147,7 +152,7 @@ export default function Reports({ transactions, compact = false }: ReportsProps)
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={isMobile ? false : ({ name, percent }) => `${name.slice(0, 8)} ${(percent * 100).toFixed(0)}%`}
+                  label={isMobile ? false : formatPieLabel}
                   outerRadius="80%"
                   fill="#8884d8"
                   dataKey="value"
@@ -191,7 +196,7 @@ export default function Reports({ transactions, compact = false }: ReportsProps)
           <CardTitle className="text-base md:text-lg">Income vs Expense</CardTitle>
         </CardHeader>
         <CardContent className="p-2 md:p-6">
-          <div className="h-[250px] md:h-[300px] w-full">
+          <div className="h-62.5 md:h-75 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={barData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <XAxis dataKey="name" stroke={axisStroke} fontSize={12} />

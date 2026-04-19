@@ -408,7 +408,7 @@ export default function TransactionList({ transactions, userId, categories, isLo
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-center justify-center py-14 text-slate-500 dark:text-gray-400 space-y-4">
-          <div className="w-16 h-16 bg-gradient-to-br from-emerald-100 to-cyan-100 dark:from-[#1b2c28] dark:to-[#1c2a37] rounded-2xl flex items-center justify-center border border-slate-200 dark:border-[#2d313d]">
+          <div className="w-16 h-16 bg-linear-to-br from-emerald-100 to-cyan-100 dark:from-[#1b2c28] dark:to-[#1c2a37] rounded-2xl flex items-center justify-center border border-slate-200 dark:border-[#2d313d]">
             <PartyPopper className="w-7 h-7 text-emerald-500" />
           </div>
           <div className="text-center space-y-1">
@@ -441,7 +441,7 @@ export default function TransactionList({ transactions, userId, categories, isLo
                     className="pl-9 bg-white dark:bg-[#0f1117] border-slate-200 dark:border-[#2d313d] h-9 sm:h-10 text-sm transition-all duration-200 focus-visible:ring-emerald-500/20"
                   />
                 </div>
-                <div className="grid grid-cols-3 gap-1.5 rounded-xl border border-slate-200 dark:border-[#2d313d] bg-slate-100/80 dark:bg-[#0f1117] p-1 sm:w-[300px]">
+                <div className="grid grid-cols-3 gap-1.5 rounded-xl border border-slate-200 dark:border-[#2d313d] bg-slate-100/80 dark:bg-[#0f1117] p-1 sm:w-75">
                   <Button
                     type="button"
                     variant="ghost"
@@ -482,7 +482,7 @@ export default function TransactionList({ transactions, userId, categories, isLo
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <Select value={categoryFilter} onValueChange={(value) => value && setCategoryFilter(value)}>
                   <SelectTrigger className="w-full bg-white dark:bg-[#0f1117] border-slate-200 dark:border-[#2d313d] h-9 sm:h-10 px-3 transition-all duration-200 hover:border-emerald-300 dark:hover:border-emerald-500/40">
                     <span className="flex items-center gap-2 min-w-0">
                       <Tag className="w-3.5 h-3.5 text-slate-400 dark:text-gray-500 shrink-0" />
@@ -571,10 +571,10 @@ export default function TransactionList({ transactions, userId, categories, isLo
                     <p className="text-[11px] text-slate-500 dark:text-gray-500 font-mono md:hidden">
                       {tx.date.toDate().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </p>
-                    <p className="text-[11px] text-slate-500 dark:text-gray-500 truncate max-w-[180px] sm:max-w-[300px] md:hidden">
+                    <p className="text-[11px] text-slate-500 dark:text-gray-500 truncate max-w-45 sm:max-w-75 md:hidden">
                       {tx.description || 'No description'}
                     </p>
-                    <p className="hidden md:block text-[11px] text-slate-500 dark:text-gray-500 truncate max-w-[380px]">
+                    <p className="hidden md:block text-[11px] text-slate-500 dark:text-gray-500 truncate max-w-95">
                       {tx.date.toDate().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} • {tx.description || 'No description'}
                     </p>
                   </div>
@@ -597,7 +597,7 @@ export default function TransactionList({ transactions, userId, categories, isLo
                     <Button 
                       variant="ghost" 
                       size="icon-xs" 
-                      onClick={() => setDeletingTransactionId(tx.id)}
+                      onClick={() => tx.id && setDeletingTransactionId(tx.id)}
                       className="text-slate-500 dark:text-gray-400 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-rose-400/10 w-8 h-8 md:w-9 md:h-9 transition-all duration-200 hover:scale-110 active:scale-95"
                     >
                       <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4" />

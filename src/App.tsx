@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
+import { lazy, Suspense, useState, useEffect } from 'react';
 import { auth, db } from './lib/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-import Auth from './components/Auth';
-import Dashboard from './components/Dashboard';
 import { Toaster } from './components/ui/sonner';
 import { UserProfile } from './types';
+
+const Auth = lazy(() => import('./components/Auth'));
+const Dashboard = lazy(() => import('./components/Dashboard'));
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -52,11 +53,19 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-[#0f1117] text-slate-900 dark:text-white font-sans">
-      {user ? (
-        <Dashboard user={user} profile={profile} />
-      ) : (
-        <Auth />
-      )}
+      <Suspense
+        fallback={
+          <div className="min-h-screen bg-slate-100 dark:bg-[#0f1117] flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
+          </div>
+        }
+      >
+        {user ? (
+          <Dashboard user={user} profile={profile} />
+        ) : (
+          <Auth />
+        )}
+      </Suspense>
       <Toaster position="top-right" />
     </div>
   );

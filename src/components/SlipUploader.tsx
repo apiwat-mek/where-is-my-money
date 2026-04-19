@@ -240,7 +240,7 @@ export default function SlipUploader({
             <p className="text-[10px] md:text-xs font-medium text-slate-500 dark:text-gray-400 uppercase tracking-wider">
               Slip Preview
             </p>
-            <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-[#2d313d] bg-black/5 dark:bg-black/20 aspect-[4/5] lg:aspect-[3/4] flex items-center justify-center max-w-[160px] md:max-w-[240px] lg:max-w-none mx-auto">
+            <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-[#2d313d] bg-black/5 dark:bg-black/20 aspect-4/5 lg:aspect-3/4 flex items-center justify-center max-w-40 md:max-w-60 lg:max-w-none mx-auto">
               <img
                 src={preview}
                 alt="Slip"
@@ -275,7 +275,7 @@ export default function SlipUploader({
                   animate={{ opacity: 1, x: 0 }}
                   className="flex flex-col h-full"
                 >
-                  <div className="space-y-2 md:space-y-4 max-h-[220px] md:max-h-none overflow-y-auto pr-2 custom-scrollbar">
+                  <div className="space-y-2 md:space-y-4 max-h-55 md:max-h-none overflow-y-auto pr-2 custom-scrollbar">
                     <div className="grid grid-cols-2 gap-2 md:gap-4">
                       <div className="bg-slate-100 dark:bg-[#2d313d] p-2 md:p-3 rounded-xl overflow-hidden">
                         <p className="text-[8px] md:text-[10px] uppercase text-slate-500 dark:text-gray-500 font-bold">
@@ -303,7 +303,7 @@ export default function SlipUploader({
                       </p>
                       {extractedData.requiresCategorySelection ? (
                         <div className="space-y-2">
-                          <p className="text-[11px] md:text-sm text-amber-300 break-words">
+                          <p className="text-[11px] md:text-sm text-amber-300 wrap-break-word">
                             AI suggested "
                             {extractedData.originalCategory ||
                               extractedData.category}
@@ -311,7 +311,9 @@ export default function SlipUploader({
                           </p>
                           <Select
                             value={selectedCategory}
-                            onValueChange={setSelectedCategory}
+                            onValueChange={(value) => {
+                              if (value !== null) setSelectedCategory(value);
+                            }}
                           >
                             <SelectTrigger className="bg-white dark:bg-[#0f1117] border-slate-200 dark:border-[#3d414d] h-9 md:h-10 text-xs md:text-sm">
                               <SelectValue placeholder="Select category" />
@@ -339,7 +341,7 @@ export default function SlipUploader({
                       <p className="text-[8px] md:text-[10px] uppercase text-slate-500 dark:text-gray-500 font-bold">
                         Description
                       </p>
-                      <p className="text-[11px] md:text-sm text-slate-600 dark:text-gray-300 break-words line-clamp-2">
+                      <p className="text-[11px] md:text-sm text-slate-600 dark:text-gray-300 wrap-break-word line-clamp-2">
                         {extractedData.description || "No description"}
                       </p>
                     </div>

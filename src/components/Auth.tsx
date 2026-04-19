@@ -112,7 +112,7 @@ export default function Auth() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-[#0f1117] dark:to-[#1a1d26]">
+    <div className="relative min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-slate-100 to-slate-200 dark:from-[#0f1117] dark:to-[#1a1d26]">
       <div className="absolute right-4 top-4">
         <ThemeToggle />
       </div>
